@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <!-- ================= STICKY HEADER ================= -->
+    <LinearLayout
+        android:id="@+id/linearlayoutHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="32dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/textviewPageTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="Progress"
+            android:textColor="#1A1A1A"
+            android:textSize="28sp" />
+
+        <TextView
+            android:id="@+id/textviewPageSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Stay consistent. Track your mastery."
+            android:textColor="#A0A0A0"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- ================= SCROLLABLE CONTENT ================= -->
+    <ScrollView
+        android:id="@+id/scrollviewMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/universal_footer"
+        android:layout_below="@+id/linearlayoutHeader"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/linearlayoutContentBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="40dp">
+
+            <!-- ================= CONSISTENCY SECTION ================= -->
+            <TextView
+                android:id="@+id/textviewConsistencyLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="CONSISTENCY"
+                android:textColor="#A0A0A0"
+                android:textSize="10sp" />
+
+            <!-- Dark Streak Card -->
+            <LinearLayout
+                android:id="@+id/linearlayoutStreakCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_streak_card_dark"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Top Row: Current & Best -->
+                <RelativeLayout
+                    android:id="@+id/relativelayoutStreakTop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/imageviewMainFlame"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ft_streak" /> <!-- Replace with your flame icon -->
+
+                    <LinearLayout
+                        android:id="@+id/linearlayoutCurrentStreakTexts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="12dp"
+                        android:layout_toEndOf="@id/imageviewMainFlame"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textviewCurrentStreakLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Current streak"
+                            android:textColor="#A0A0A0"
+                            android:textSize="10sp" />
+
+                        <LinearLayout
+                            android:id="@+id/linearlayoutStreakNumbers"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="bottom"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/textviewStreakCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-black"
+                                android:includeFontPadding="false"
+                                android:text="14"
+                                android:textColor="#FFFFFF"
+                                android:textSize="32sp" />
+
+                            <TextView
+                                android:id="@+id/textviewStreakDaysText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:layout_marginBottom="4dp"
+                                android:text="days"
+                                android:textColor="#A0A0A0"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Best Streak Box -->
+                    <LinearLayout
+                        android:id="@+id/linearlayoutBestStreakBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/bg_streak_best_box"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/textviewBestLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Best"
+                            android:textColor="#A0A0A0"
+                            android:textSize="10sp" />
+
+                        <TextView
+                            android:id="@+id/textviewBestNumber"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-black"
+                            android:text="14"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <!-- Weekly Pills Row -->
+                <LinearLayout
+                    android:id="@+id/linearlayoutWeekDays"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <!-- Active Day (Mon) -->
+                    <LinearLayout android:id="@+id/linearlayoutDayMon" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                        <ImageView android:id="@+id/imageviewFlameMon" android:layout_width="32dp" android:layout_height="36dp" android:background="@drawable/bg_streak_day_active" android:padding="6dp" android:src="@drawable/ft_streak" />
+                        <TextView android:id="@+id/textviewDayMon" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Mon" android:textColor="#FFFFFF" android:textSize="9sp" android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Active Day (Tue) -->
+                    <LinearLayout android:id="@+id/linearlayoutDayTue" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                        <ImageView android:id="@+id/imageviewFlameTue" android:layout_width="32dp" android:layout_height="36dp" android:background="@drawable/bg_streak_day_active" android:padding="6dp" android:src="@drawable/ft_streak" />
+                        <TextView android:id="@+id/textviewDayTue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Tue" android:textColor="#FFFFFF" android:textSize="9sp" android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Active Day (Wed) -->
+                    <LinearLayout android:id="@+id/linearlayoutDayWed" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                        <ImageView android:id="@+id/imageviewFlameWed" android:layout_width="32dp" android:layout_height="36dp" android:background="@drawable/bg_streak_day_active" android:padding="6dp" android:src="@drawable/ft_streak" />
+                        <TextView android:id="@+id/textviewDayWed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Wed" android:textColor="#FFFFFF" android:textSize="9sp" android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Active Day (Thu) -->
+                    <LinearLayout android:id="@+id/linearlayoutDayThu" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                        <ImageView android:id="@+id/imageviewFlameThu" android:layout_width="32dp" android:layout_height="36dp" android:background="@drawable/bg_streak_day_active" android:padding="6dp" android:src="@drawable/ft_streak" />
+                        <TextView android:id="@+id/textviewDayThu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Thu" android:textColor="#FFFFFF" android:textSize="9sp" android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Active Day (Fri) -->
+                    <LinearLayout android:id="@+id/linearlayoutDayFri" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                        <ImageView android:id="@+id/imageviewFlameFri" android:layout_width="32dp" android:layout_height="36dp" android:background="@drawable/bg_streak_day_active" android:padding="6dp" android:src="@drawable/ft_streak" />
+                        <TextView android:id="@+id/textviewDayFri" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Fri" android:textColor="#FFFFFF" android:textSize="9sp" android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Inactive Day (Sat) -->
+                    <LinearLayout android:id="@+id/linearlayoutDaySat" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                        <View android:id="@+id/viewBoxSat" android:layout_width="32dp" android:layout_height="36dp" android:background="@drawable/bg_streak_best_box" />
+                        <TextView android:id="@+id/textviewDaySat" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Sat" android:textColor="#555566" android:textSize="9sp" android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Inactive Day (Sun) -->
+                    <LinearLayout android:id="@+id/linearlayoutDaySun" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                        <View android:id="@+id/viewBoxSun" android:layout_width="32dp" android:layout_height="36dp" android:background="@drawable/bg_streak_best_box" />
+                        <TextView android:id="@+id/textviewDaySun" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Sun" android:textColor="#555566" android:textSize="9sp" android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Milestone Bar -->
+                <RelativeLayout
+                    android:id="@+id/relativelayoutMilestoneTexts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp">
+
+                    <TextView
+                        android:id="@+id/textviewNextMilestoneLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Next milestone"
+                        android:textColor="#A0A0A0"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/textviewMilestoneGoalText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:text="21 days — 7 to go"
+                        android:textColor="#FF9800"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
+                <!-- Progress Bar Layout Trick -->
+                <LinearLayout
+                    android:id="@+id/linearlayoutMilestoneBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_streak_best_box"
+                    android:orientation="horizontal"
+                    android:weightSum="100">
+
+                    <!-- Fill -->
+                    <View
+                        android:id="@+id/viewMilestoneFill"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="66"
+                        android:background="#FF9800" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textviewPersonalBestMotivator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:drawablePadding="8dp"
+                    android:text="🏆 Personal best — keep it going!"
+                    android:textColor="#FF9800"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Small Stats Row -->
+            <LinearLayout
+                android:id="@+id/linearlayoutStatsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <!-- Total Days -->
+                <LinearLayout android:id="@+id/linearlayoutStatTotal" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="6dp" android:layout_weight="1" android:background="@drawable/bg_outline" android:gravity="center" android:orientation="vertical" android:padding="12dp">
+                    <ImageView android:id="@+id/imageviewIconTotal" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/calendar" />
+                    <TextView android:id="@+id/textviewStatTotalNumber" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:fontFamily="sans-serif-black" android:text="38" android:textColor="#1A1A1A" android:textSize="18sp" />
+                    <TextView android:id="@+id/textviewStatTotalLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Days" android:textColor="#A0A0A0" android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- This Month -->
+                <LinearLayout android:id="@+id/linearlayoutStatMonth" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="6dp" android:layout_weight="1" android:background="@drawable/bg_outline" android:gravity="center" android:orientation="vertical" android:padding="12dp">
+                    <ImageView android:id="@+id/imageviewIconMonth" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/calendar" />
+                    <TextView android:id="@+id/textviewStatMonthNumber" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:fontFamily="sans-serif-black" android:text="14" android:textColor="#1A1A1A" android:textSize="18sp" />
+                    <TextView android:id="@+id/textviewStatMonthLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="This Month" android:textColor="#A0A0A0" android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Missed Days -->
+                <LinearLayout android:id="@+id/linearlayoutStatMissed" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@drawable/bg_outline" android:gravity="center" android:orientation="vertical" android:padding="12dp">
+                    <ImageView android:id="@+id/imageviewIconMissed" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/calendar" />
+                    <TextView android:id="@+id/textviewStatMissedNumber" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:fontFamily="sans-serif-black" android:text="3" android:textColor="#1A1A1A" android:textSize="18sp" />
+                    <TextView android:id="@+id/textviewStatMissedLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Missed Days" android:textColor="#A0A0A0" android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ================= MASTERY RATE SECTION ================= -->
+            <TextView
+                android:id="@+id/textviewMasteryLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:fontFamily="sans-serif-black"
+                android:text="MASTERY RATE"
+                android:textColor="#A0A0A0"
+                android:textSize="10sp" />
+
+            <!-- Overall Mastery Card -->
+            <LinearLayout
+                android:id="@+id/linearlayoutOverallMasteryCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_outline"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+                <!-- Circular Progress Ring (Faked with layered drawable for static UI) -->
+                <RelativeLayout
+                    android:id="@+id/relativelayoutMasteryRingContainer"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp">
+
+                    <ProgressBar
+                        android:id="@+id/progressbarMastery"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminate="false"
+                        android:max="100"
+                        android:progress="66"
+                        android:progressDrawable="@drawable/bg_mastery_ring" />
+
+                    <TextView
+                        android:id="@+id/textviewMasteryPercent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:fontFamily="sans-serif-black"
+                        android:text="66%"
+                        android:textColor="#1A1A1A"
+                        android:textSize="16sp" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearlayoutMasteryTexts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textviewMasteryTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:text="Overall Mastery"
+                        android:textColor="#1A1A1A"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/textviewMasteryDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Cards marked 'Got it!' vs\ntotal cards reviewed across all sets"
+                        android:textColor="#A0A0A0"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- By Subject Card -->
+            <LinearLayout
+                android:id="@+id/linearlayoutBySubjectCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_outline"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/textviewBySubjectTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="By Subject"
+                    android:textColor="#1A1A1A"
+                    android:textSize="12sp" />
+
+<!--                &lt;!&ndash; Subject 1: Biology &ndash;&gt;-->
+<!--                <RelativeLayout android:id="@+id/relativelayoutSubBio" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">-->
+<!--                    <ImageView android:id="@+id/imageviewIconBio" android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_dna" android:background="@drawable/bg_icon_light_green" android:padding="6dp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubBioTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/imageviewIconBio" android:layout_marginStart="12dp" android:text="Biology" android:textColor="#1A1A1A" android:textStyle="bold" android:textSize="12sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubBioCards" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/textviewSubBioTitle" android:layout_toEndOf="@id/imageviewIconBio" android:layout_marginStart="12dp" android:text="72 / 85 cards" android:textColor="#A0A0A0" android:textSize="10sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubBioPercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="85%" android:textColor="#00897B" android:textStyle="bold" android:textSize="12sp"/>-->
+
+<!--                    <LinearLayout android:id="@+id/linearlayoutBarBio" android:layout_width="match_parent" android:layout_height="4dp" android:layout_below="@id/imageviewIconBio" android:layout_marginTop="8dp" android:background="@drawable/bg_progress_track" android:weightSum="100" android:orientation="horizontal">-->
+<!--                        <View android:id="@+id/viewFillBio" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="85" android:background="#00897B"/>-->
+<!--                    </LinearLayout>-->
+<!--                </RelativeLayout>-->
+
+<!--                &lt;!&ndash; Subject 2: World History &ndash;&gt;-->
+<!--                <RelativeLayout android:id="@+id/relativelayoutSubHist" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">-->
+<!--                    <ImageView android:id="@+id/imageviewIconHist" android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_book" android:background="@drawable/bg_tag_blue" android:padding="6dp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubHistTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/imageviewIconHist" android:layout_marginStart="12dp" android:text="World History" android:textColor="#1A1A1A" android:textStyle="bold" android:textSize="12sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubHistCards" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/textviewSubHistTitle" android:layout_toEndOf="@id/imageviewIconHist" android:layout_marginStart="12dp" android:text="49 / 70 cards" android:textColor="#A0A0A0" android:textSize="10sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubHistPercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="70%" android:textColor="#1E88E5" android:textStyle="bold" android:textSize="12sp"/>-->
+
+<!--                    <LinearLayout android:id="@+id/linearlayoutBarHist" android:layout_width="match_parent" android:layout_height="4dp" android:layout_below="@id/imageviewIconHist" android:layout_marginTop="8dp" android:background="@drawable/bg_progress_track" android:weightSum="100" android:orientation="horizontal">-->
+<!--                        <View android:id="@+id/viewFillHist" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="70" android:background="#1E88E5"/>-->
+<!--                    </LinearLayout>-->
+<!--                </RelativeLayout>-->
+
+<!--                &lt;!&ndash; Subject 3: Calculus II &ndash;&gt;-->
+<!--                <RelativeLayout android:id="@+id/relativelayoutSubCalc" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">-->
+<!--                    <ImageView android:id="@+id/imageviewIconCalc" android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/pencil" android:background="@drawable/bg_tag_yellow" android:padding="6dp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubCalcTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/imageviewIconCalc" android:layout_marginStart="12dp" android:text="Calculus II" android:textColor="#1A1A1A" android:textStyle="bold" android:textSize="12sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubCalcCards" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/textviewSubCalcTitle" android:layout_toEndOf="@id/imageviewIconCalc" android:layout_marginStart="12dp" android:text="22 / 40 cards" android:textColor="#A0A0A0" android:textSize="10sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubCalcPercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="55%" android:textColor="#FF8F00" android:textStyle="bold" android:textSize="12sp"/>-->
+
+<!--                    <LinearLayout android:id="@+id/linearlayoutBarCalc" android:layout_width="match_parent" android:layout_height="4dp" android:layout_below="@id/imageviewIconCalc" android:layout_marginTop="8dp" android:background="@drawable/bg_progress_track" android:weightSum="100" android:orientation="horizontal">-->
+<!--                        <View android:id="@+id/viewFillCalc" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="55" android:background="#FF8F00"/>-->
+<!--                    </LinearLayout>-->
+<!--                </RelativeLayout>-->
+
+<!--                &lt;!&ndash; Subject 4: Data Structures &ndash;&gt;-->
+<!--                <RelativeLayout android:id="@+id/relativelayoutSubData" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">-->
+<!--                    <ImageView android:id="@+id/imageviewIconData" android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_grid" android:background="@drawable/bg_icon_purple" android:padding="6dp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubDataTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/imageviewIconData" android:layout_marginStart="12dp" android:text="Data Structures" android:textColor="#1A1A1A" android:textStyle="bold" android:textSize="12sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubDataCards" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/textviewSubDataTitle" android:layout_toEndOf="@id/imageviewIconData" android:layout_marginStart="12dp" android:text="35 / 45 cards" android:textColor="#A0A0A0" android:textSize="10sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubDataPercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="78%" android:textColor="#8E24AA" android:textStyle="bold" android:textSize="12sp"/>-->
+
+<!--                    <LinearLayout android:id="@+id/linearlayoutBarData" android:layout_width="match_parent" android:layout_height="4dp" android:layout_below="@id/imageviewIconData" android:layout_marginTop="8dp" android:background="@drawable/bg_progress_track" android:weightSum="100" android:orientation="horizontal">-->
+<!--                        <View android:id="@+id/viewFillData" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="78" android:background="#8E24AA"/>-->
+<!--                    </LinearLayout>-->
+<!--                </RelativeLayout>-->
+
+<!--                &lt;!&ndash; Subject 5: Quantum Physics &ndash;&gt;-->
+<!--                <RelativeLayout android:id="@+id/relativelayoutSubPhys" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp">-->
+<!--                    <ImageView android:id="@+id/imageviewIconPhys" android:layout_width="28dp" android:layout_height="28dp" android:src="@drawable/ic_atom" android:background="@drawable/bg_icon_red" android:padding="6dp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubPhysTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/imageviewIconPhys" android:layout_marginStart="12dp" android:text="Quantum Physics" android:textColor="#1A1A1A" android:textStyle="bold" android:textSize="12sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubPhysCards" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/textviewSubPhysTitle" android:layout_toEndOf="@id/imageviewIconPhys" android:layout_marginStart="12dp" android:text="12 / 30 cards" android:textColor="#A0A0A0" android:textSize="10sp"/>-->
+<!--                    <TextView android:id="@+id/textviewSubPhysPercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="40%" android:textColor="#D81B60" android:textStyle="bold" android:textSize="12sp"/>-->
+
+<!--                    <LinearLayout android:id="@+id/linearlayoutBarPhys" android:layout_width="match_parent" android:layout_height="4dp" android:layout_below="@id/imageviewIconPhys" android:layout_marginTop="8dp" android:background="@drawable/bg_progress_track" android:weightSum="100" android:orientation="horizontal">-->
+<!--                        <View android:id="@+id/viewFillPhys" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="40" android:background="#D81B60"/>-->
+<!--                    </LinearLayout>-->
+<!--                </RelativeLayout>-->
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ================= UNIVERSAL FOOTER ================= -->
+    <include
+        layout="@layout/layout_universal_footer"
+        android:id="@+id/universal_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

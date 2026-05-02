@@ -1,0 +1,8 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Force light mode even in night configuration -->
+    <style name="Base.Theme.VizuaLearnFinal" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Customize your night theme here. -->
+    </style>
+
+    <style name="Theme.VizuaLearnFinal" parent="Base.Theme.VizuaLearnFinal" />
+</resources>
