@@ -15,6 +15,12 @@ import com.myApp.vizualearnfinal.data.model.MindMapNode
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
 import com.myApp.vizualearnfinal.screens.dashboard.DashboardActivity
 import com.myApp.vizualearnfinal.utils.*
+import android.annotation.SuppressLint
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import org.json.JSONArray
+import org.json.JSONObject
+
 
 class Step4Activity : AppCompatActivity(), Step4Contract.View {
 
@@ -98,12 +104,74 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
         }
     }
 
+    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun showMindMapUI(setName: String, nodes: List<MindMapNode>) {
         getLinearLayout(R.id.linearlayoutFlashcardsVariant)?.visibility = View.GONE
         getLinearLayout(R.id.linearlayoutMindMapVariant)?.visibility = View.VISIBLE
 
-        // We will build the dynamic list logic for Mind Maps in Phase 4
-        // when we tackle the visual canvas!
+        // Build Cytoscape JSON
+        val elementsArray = JSONArray()
+
+        elementsArray.put(JSONObject().apply {
+            put("data", JSONObject().apply {
+                put("id", "root")
+                put("label", setName)
+            })
+        })
+
+        nodes.forEachIndexed { index, node ->
+            val nodeId = "node_$index"
+            elementsArray.put(JSONObject().apply {
+                put("data", JSONObject().apply {
+                    put("id", nodeId)
+                    put("label", node.title)
+                    put("description", node.description)
+                })
+            })
+            elementsArray.put(JSONObject().apply {
+                put("data", JSONObject().apply {
+                    put("id", "edge_$index")
+                    put("source", "root")
+                    put("target", nodeId)
+                })
+            })
+        }
+
+        // Escape special characters so JS doesn't break
+        val jsonString = elementsArray.toString()
+            .replace("\\", "\\\\")
+            .replace("'", "\\'")
+            .replace("\n", "\\n")
+            .replace("\r", "")
+
+        val webView = findViewById<WebView>(R.id.webviewMindMapPreview)
+        webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true
+
+        // Fix: Let WebView handle its own touch events inside ScrollView
+        webView.setOnTouchListener { v, _ ->
+            v.parent.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
+        // Wire up node tap → update the details card below
+        webView.addJavascriptInterface(object : Any() {
+            @android.webkit.JavascriptInterface
+            fun onNodeTapped(title: String, description: String) {
+                runOnUiThread {
+                    getTextView(R.id.textviewNodeTitle)?.text = title
+                    getTextView(R.id.textviewNodeDesc)?.text = description
+                }
+            }
+        }, "Android")
+
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                webView.evaluateJavascript("javascript:loadGraph('$jsonString')", null)
+            }
+        }
+
+        webView.loadUrl("file:///android_asset/mindmap.html")
     }
 
     override fun showMessage(message: String) {

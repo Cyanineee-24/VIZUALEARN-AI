@@ -75,14 +75,14 @@ class Step3Activity : AppCompatActivity(), Step3Contract.View {
         btnContinue?.isClickable = true
     }
 
+    // Step3Activity.kt — navigateToStep4()
     override fun navigateToStep4(setId: Int, type: String, jsonResult: String) {
         val intent = Intent(this, Step4Activity::class.java).apply {
             putExtra("EXTRA_SET_ID", setId)
             putExtra("EXTRA_TYPE", type)
             putExtra("EXTRA_JSON_RESULT", jsonResult)
-
-            // ADD THIS LINE: Pass the name we got from Step 2 forward to Step 4!
-            putExtra("EXTRA_ITEM_NAME", intent.getStringExtra("EXTRA_ITEM_NAME") ?: "Untitled")
+            // ✅ Use this@Step3Activity.intent to read the INCOMING intent
+            putExtra("EXTRA_ITEM_NAME", this@Step3Activity.intent.getStringExtra("EXTRA_ITEM_NAME") ?: "Untitled")
         }
         startActivity(intent)
         finish()

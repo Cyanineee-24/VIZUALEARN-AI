@@ -13,7 +13,7 @@ import com.myApp.vizualearnfinal.data.model.StudySet
 // 1. Added Flashcard and MindMapNode to entities, bumped version to 3
 @Database(
     entities = [StudySet::class, FlashcardDeck::class, Flashcard::class, MindMap::class, MindMapNode::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
