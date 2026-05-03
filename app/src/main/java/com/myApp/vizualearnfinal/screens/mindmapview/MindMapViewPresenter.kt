@@ -35,33 +35,35 @@ class MindMapViewPresenter(
             }
             elementsArray.put(rootNode)
 
-            // Create Child Nodes and Edges
-            nodes.forEachIndexed { index, node ->
-                val nodeId = "node_$index"
+            nodes.forEach { node ->
+                // WE REMOVED THE INTERCEPTION! Let Gemini's title shine.
+                val nodeTitle = node.title
 
-                // Child Node (Packing the description here so JS can see it!)
-                val childNode = JSONObject().apply {
+                elementsArray.put(JSONObject().apply {
                     put("data", JSONObject().apply {
-                        put("id", nodeId)
-                        put("label", node.title)
+                        put("id", node.nodeId)
+                        put("label", nodeTitle)
                         put("description", node.description)
                     })
-                }
-                elementsArray.put(childNode)
+                })
 
-                // Edge connecting Root to Child
-                val edge = JSONObject().apply {
-                    put("data", JSONObject().apply {
-                        put("id", "edge_$index")
-                        put("source", "root")
-                        put("target", nodeId)
+                if (node.parentId != "null" && node.parentId.isNotEmpty() && node.nodeId != "root") {
+                    elementsArray.put(JSONObject().apply {
+                        put("data", JSONObject().apply {
+                            put("id", "edge_${node.nodeId}")
+                            put("source", node.parentId)
+                            put("target", node.nodeId)
+                        })
                     })
                 }
-                elementsArray.put(edge)
             }
+            val rawJsonString = elementsArray.toString()
+            val base64Json = android.util.Base64.encodeToString(
+                rawJsonString.toByteArray(Charsets.UTF_8),
+                android.util.Base64.NO_WRAP
+            )
 
-            // 3. Send the final JSON string to the View to be injected
-            view.injectGraphData(elementsArray.toString())
+            view.injectGraphData(base64Json)
         }
     }
 

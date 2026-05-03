@@ -360,13 +360,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- ================= UNIVERSAL FOOTER ================= -->
-    <include
-        layout="@layout/layout_universal_footer"
-        android:id="@+id/universal_footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
-
 </RelativeLayout>

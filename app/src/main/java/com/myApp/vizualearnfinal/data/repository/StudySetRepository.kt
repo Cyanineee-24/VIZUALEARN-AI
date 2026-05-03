@@ -61,4 +61,8 @@ class StudySetRepository(private val dao: StudySetDao) {
     suspend fun updateDeckProgress(deckId: Int, progress: Int) {
         dao.updateDeckProgress(deckId, progress)
     }
+
+    suspend fun insertFlashcard(card: Flashcard) {
+        dao.insertFlashcard(card)
+    }
 }

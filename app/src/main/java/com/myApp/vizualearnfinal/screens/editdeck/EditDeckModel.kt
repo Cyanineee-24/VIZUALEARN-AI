@@ -16,4 +16,9 @@ class EditDeckModel(private val repository: StudySetRepository) {
     suspend fun deleteFlashcard(card: Flashcard) {
         repository.deleteFlashcard(card)
     }
+
+    // NEW: Needed so we can instantly save new cards to this existing deck!
+    suspend fun insertFlashcard(card: Flashcard) {
+        repository.insertFlashcard(card)
+    }
 }

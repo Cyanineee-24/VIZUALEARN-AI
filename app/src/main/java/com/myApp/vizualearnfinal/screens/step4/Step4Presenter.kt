@@ -17,7 +17,7 @@ class Step4Presenter(
 
     private var currentSetId: Int = 0
     private var currentType: String = ""
-    private var currentItemName: String = "" // Added to store the name
+    private var currentItemName: String = ""
 
     private val parsedFlashcards = mutableListOf<Flashcard>()
     private val parsedNodes = mutableListOf<MindMapNode>()
@@ -30,7 +30,7 @@ class Step4Presenter(
     override fun initializeView(setId: Int, type: String, itemName: String, jsonResult: String) {
         currentSetId = setId
         currentType = type
-        currentItemName = itemName // Store it for later
+        currentItemName = itemName
 
         CoroutineScope(Dispatchers.Main).launch {
             val studySet = model.getStudySet(setId)
@@ -45,8 +45,8 @@ class Step4Presenter(
                         parsedNodes.add(
                             MindMapNode(
                                 mindMapId = 0,
-                                nodeId = obj.optString("id", "node_$i"),      // <--- CATCH ID
-                                parentId = obj.optString("parentId", "root"), // <--- CATCH PARENT
+                                nodeId = obj.optString("id", "node_$i"),
+                                parentId = obj.optString("parentId", "root"),
                                 title = obj.optString("title", "No Title"),
                                 description = obj.optString("description", "No Description")
                             )
@@ -58,7 +58,7 @@ class Step4Presenter(
                         val obj = jsonArray.getJSONObject(i)
                         parsedFlashcards.add(
                             Flashcard(
-                                deckId = 0, // Repository assigns the real ID later
+                                deckId = 0,
                                 frontText = obj.optString("frontText", "Error reading front"),
                                 backText = obj.optString("backText", "Error reading back")
                             )
@@ -74,7 +74,6 @@ class Step4Presenter(
 
     override fun onSaveClicked() {
         CoroutineScope(Dispatchers.Main).launch {
-            // We now pass the currentItemName to the model to create the Folder/Deck!
             if (currentType == "mindmap" && parsedNodes.isNotEmpty()) {
                 model.saveMindMap(currentSetId, currentItemName, parsedNodes)
             } else if (currentType == "flashcard" && parsedFlashcards.isNotEmpty()) {
@@ -85,6 +84,25 @@ class Step4Presenter(
         }
     }
 
+    // ---------------------------------------------------------
+    // THE SHARED AI HELPER
+    // ---------------------------------------------------------
+    private suspend fun fetchContextFromGemini(front: String, back: String): String {
+        val prompt = """
+            You are an expert educator helping a student deeply understand a concept.
+            The student has this flashcard:
+            QUESTION: $front
+            ANSWER: $back
+            
+            Do NOT repeat or rephrase the question and answer. Instead, write a short 2-3 sentence 
+            "deeper context" explaining WHY this is true or HOW it works.
+            Keep it under 60 words. No bullet points. Plain prose only.
+        """.trimIndent()
+
+        val response = generativeModel.generateContent(prompt)
+        return response.text?.trim() ?: "Could not generate context."
+    }
+
     override fun onGenerateContextClicked(index: Int) {
         if (index !in parsedFlashcards.indices) return
         val card = parsedFlashcards[index]
@@ -92,27 +110,7 @@ class Step4Presenter(
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val prompt = """
-                You are an expert educator helping a student deeply understand a concept.
-                
-                The student has this flashcard:
-                QUESTION: ${card.frontText}
-                ANSWER: ${card.backText}
-                
-                Do NOT repeat or rephrase the question and answer. Instead, write a short 2-3 sentence 
-                "deeper context" that answers a follow-up curious question like:
-                - WHY is this true?
-                - HOW does this work at a deeper level?
-                - WHAT makes this concept important or interesting?
-                - How does this connect to the bigger picture?
-                
-                Write it as if you're a curious teacher sparking the student's interest. 
-                Keep it under 60 words. No bullet points. Plain prose only.
-            """.trimIndent()
-
-                val response = generativeModel.generateContent(prompt)
-                val context = response.text?.trim() ?: "Could not generate context."
-
+                val context = fetchContextFromGemini(card.frontText, card.backText)
                 withContext(Dispatchers.Main) {
                     val updatedCard = card.copy(contextText = context)
                     parsedFlashcards[index] = updatedCard
@@ -123,6 +121,17 @@ class Step4Presenter(
                 withContext(Dispatchers.Main) {
                     view.showMessage("Failed to generate context. Check connection.")
                 }
+            }
+        }
+    }
+
+    override fun generateContextForText(front: String, back: String, callback: (String) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val context = fetchContextFromGemini(front, back)
+                withContext(Dispatchers.Main) { callback(context) }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) { callback("Failed to generate context. Check connection.") }
             }
         }
     }
@@ -163,5 +172,16 @@ class Step4Presenter(
             view.refreshFlashcardsList(parsedFlashcards)
             view.showMessage("Card deleted.")
         }
+    }
+
+    // --- NEW ADD CARD ACTIONS ---
+    override fun onAddCardClicked() {
+        view.showEditCardDialog(-1, null)
+    }
+
+    override fun onAddCardSaved(front: String, back: String, contextText: String?) {
+        parsedFlashcards.add(Flashcard(deckId = 0, frontText = front, backText = back, contextText = contextText))
+        view.refreshFlashcardsList(parsedFlashcards)
+        view.showMessage("New card added!")
     }
 }

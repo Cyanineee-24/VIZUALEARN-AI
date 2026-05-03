@@ -15,11 +15,17 @@ import com.myApp.vizualearnfinal.screens.flashcardview.FlashCardViewActivity
 import com.myApp.vizualearnfinal.screens.mindmapview.MindMapViewActivity
 import com.myApp.vizualearnfinal.screens.step1.Step1Activity
 import com.myApp.vizualearnfinal.utils.ContainerAdapter
+import com.myApp.vizualearnfinal.utils.ContainerType
 import com.myApp.vizualearnfinal.utils.DeckItem
 
 class ViewSetActivity : AppCompatActivity(), ViewSetContract.View {
 
     private lateinit var presenter: ViewSetContract.Presenter
+
+    // Store items so the click listener can look up the title by ID
+    private val mindMapItems = mutableListOf<DeckItem>()
+    private val flashcardItems = mutableListOf<DeckItem>()
+
     private lateinit var flashcardAdapter: ContainerAdapter
     private lateinit var mindMapAdapter: ContainerAdapter
 
@@ -34,21 +40,17 @@ class ViewSetActivity : AppCompatActivity(), ViewSetContract.View {
             return
         }
 
-        // INITIALIZE MVP
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
         presenter = ViewSetPresenter(this, ViewSetModel(this, repository))
 
         setupUI()
         setupAdapters()
-
-        // Tell Presenter to fetch data!
         presenter.loadSetData(setId)
     }
 
     override fun onResume() {
         super.onResume()
-        // Refresh data when returning to this screen
         val setId = intent.getIntExtra("EXTRA_SET_ID", -1)
         if (setId != -1) presenter.loadSetData(setId)
     }
@@ -56,7 +58,6 @@ class ViewSetActivity : AppCompatActivity(), ViewSetContract.View {
     private fun setupUI() {
         findViewById<ImageView>(R.id.imageviewBack).setOnClickListener { navigateBack() }
 
-        // Send clicks to presenter
         findViewById<LinearLayout>(R.id.linearlayoutAddNewFlashCardSetButton)?.setOnClickListener {
             presenter.onAddFlashcardClicked()
         }
@@ -75,14 +76,15 @@ class ViewSetActivity : AppCompatActivity(), ViewSetContract.View {
         findViewById<RecyclerView>(R.id.rvFlashcardDecks).adapter = flashcardAdapter
 
         mindMapAdapter = ContainerAdapter(emptyList()) { id, type ->
+            // FIX: Look up the title from our stored list so we pass the real name
+            val mapTitle = mindMapItems.find { it.id == id }?.title ?: "Mind Map"
             val intent = Intent(this, MindMapViewActivity::class.java)
             intent.putExtra("EXTRA_MAP_ID", id)
+            intent.putExtra("EXTRA_MAP_TITLE", mapTitle) // <-- THE FIX
             startActivity(intent)
         }
         findViewById<RecyclerView>(R.id.rvMindMaps).adapter = mindMapAdapter
     }
-
-    // --- CONTRACT METHODS ---
 
     override fun displaySetHeader(setName: String, subtitle: String) {
         findViewById<TextView>(R.id.textviewSetTitle).text = setName
@@ -90,6 +92,12 @@ class ViewSetActivity : AppCompatActivity(), ViewSetContract.View {
     }
 
     override fun displayDecks(flashcardDecks: List<DeckItem>, mindMapDecks: List<DeckItem>) {
+        // FIX: Store copies so click listeners can look up titles
+        flashcardItems.clear()
+        flashcardItems.addAll(flashcardDecks)
+        mindMapItems.clear()
+        mindMapItems.addAll(mindMapDecks)
+
         flashcardAdapter.updateData(flashcardDecks)
         mindMapAdapter.updateData(mindMapDecks)
     }

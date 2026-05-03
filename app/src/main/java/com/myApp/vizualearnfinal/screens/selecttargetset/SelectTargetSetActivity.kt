@@ -3,7 +3,6 @@ package com.myApp.vizualearnfinal.screens.selecttargetset
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.myApp.vizualearnfinal.R
@@ -18,7 +17,6 @@ class SelectTargetSetActivity : AppCompatActivity(), SelectTargetSetContract.Vie
 
     private lateinit var presenter: SelectTargetSetContract.Presenter
     private var setsContainer: LinearLayout? = null
-    private var addSetPromptLayout: LinearLayout? = null
     private var creationType: String = "flashcard"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,12 +30,13 @@ class SelectTargetSetActivity : AppCompatActivity(), SelectTargetSetContract.Vie
         presenter = SelectTargetSetPresenter(this, SelectTargetSetModel(StudySetRepository(dao)))
 
         setsContainer = getLinearLayout(R.id.linearlayoutStudySetsContainer)
-        addSetPromptLayout = getLinearLayout(R.id.linearlayoutAddSetPrompt)
 
-        getImageView(R.id.imageviewAddSetButton)?.setOnClickListener { start(AddSetActivity::class.java) }
-        
-        // Implementing the Cancel button (TextView in XML)
-        getTextView(R.id.textviewCancel)?.setOnClickListener { 
+        // Bind the new styled button to AddSetActivity
+        getLinearLayout(R.id.linearlayoutAddNewSetBtn)?.setOnClickListener {
+            start(AddSetActivity::class.java)
+        }
+
+        getTextView(R.id.textviewCancel)?.setOnClickListener {
             finish()
         }
     }
@@ -49,7 +48,6 @@ class SelectTargetSetActivity : AppCompatActivity(), SelectTargetSetContract.Vie
 
     override fun displayStudySets(sets: List<StudySet>) {
         setsContainer?.removeAllViews()
-        addSetPromptLayout?.let { setsContainer?.addView(it) }
 
         val inflater = LayoutInflater.from(this)
         for (set in sets) {
@@ -60,12 +58,10 @@ class SelectTargetSetActivity : AppCompatActivity(), SelectTargetSetContract.Vie
             itemView.getTextView(R.id.textviewItemSubTitle)?.text = set.subject
 
             itemView.setOnClickListener { presenter.onSetSelected(set.id, creationType) }
-            setsContainer?.addView(itemView, (setsContainer?.childCount ?: 1) - 1)
-        }
-    }
 
-    override fun showEmptyState(show: Boolean) {
-        addSetPromptLayout?.visibility = View.VISIBLE
+            // Standard add to bottom of the container
+            setsContainer?.addView(itemView)
+        }
     }
 
     override fun navigateToStep1(setId: Int, type: String) {

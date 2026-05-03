@@ -3,6 +3,7 @@ package com.myApp.vizualearnfinal.data.database
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.myApp.vizualearnfinal.data.model.*
@@ -79,4 +80,7 @@ interface StudySetDao {
 
     @Query("UPDATE flashcard_decks SET progress = :progress WHERE id = :deckId")
     suspend fun updateDeckProgress(deckId: Int, progress: Int)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFlashcard(flashcard: Flashcard): Long
 }

@@ -40,7 +40,22 @@
                 <TextView android:id="@+id/textviewStepNumber" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Step 4 of 4" android:textColor="#A0A0A0" android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
-
+        <TextView
+            android:id="@+id/textviewAddCard"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_toStartOf="@id/textviewSave"
+            android:layout_marginEnd="5dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/bg_btn_cancel_red"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="Add"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
         <TextView
             android:id="@+id/textviewSave"
             android:layout_width="wrap_content"
@@ -139,7 +154,7 @@
                             android:gravity="center"
                             android:orientation="horizontal">
                             <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_export" app:tint="#FFFFFF"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Export" android:textColor="#FFFFFF" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Export to Images" android:textColor="#FFFFFF" android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -170,6 +185,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <include layout="@layout/layout_universal_footer" android:id="@+id/layoutUniversalFooter" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" />
 </RelativeLayout>

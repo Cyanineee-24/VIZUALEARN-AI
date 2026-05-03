@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linearlayoutBottomSheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -86,15 +87,48 @@
         android:textColor="#1A1A1A"
         android:textSize="14sp" />
 
-    <!-- Context Text Input -->
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="FULL CONTEXT (OPTIONAL)"
-        android:textColor="#A0A0A0"
-        android:textSize="10sp"
-        android:textStyle="bold" />
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="FULL CONTEXT (OPTIONAL)"
+            android:textColor="#A0A0A0"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <!-- New AI Generation Button -->
+        <LinearLayout
+            android:id="@+id/btnGenerateAiBottomSheet"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/bg_btn_generate_purple"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_sparkles"
+                app:tint="#FFD700" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="Generate"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
 
     <EditText
         android:id="@+id/edittextEditContext"
@@ -103,12 +137,11 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/bg_dashed_box_light"
         android:gravity="top|start"
-        android:hint="Add a detailed explanation..."
+        android:hint="Add a detailed explanation or click Generate..."
         android:minHeight="100dp"
         android:padding="12dp"
         android:textColor="#1A1A1A"
         android:textSize="14sp" />
-
     <!-- Save Button -->
     <TextView
         android:id="@+id/textviewSaveCardChanges"

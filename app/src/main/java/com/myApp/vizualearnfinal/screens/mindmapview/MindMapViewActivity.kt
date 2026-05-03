@@ -1,7 +1,11 @@
 package com.myApp.vizualearnfinal.screens.mindmapview
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -15,17 +19,20 @@ import com.myApp.vizualearnfinal.data.database.AppDatabase
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
 import com.myApp.vizualearnfinal.utils.getLinearLayout
 import com.myApp.vizualearnfinal.utils.toast
+import java.io.OutputStream
 
 class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
 
     private lateinit var presenter: MindMapViewContract.Presenter
     private lateinit var webView: WebView
 
+    private var isPageLoaded = false
+    private var pendingJsonData: String? = null
+
     // --- THE JAVASCRIPT BRIDGE ---
     inner class WebAppInterface {
         @JavascriptInterface
         fun onNodeTapped(title: String, description: String) {
-            // Pass the tap event to the Presenter on the main thread
             runOnUiThread {
                 presenter.onNodeTapped(title, description)
             }
@@ -33,11 +40,38 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
 
         @JavascriptInterface
         fun saveImage(base64String: String) {
-            // Remove the data URL prefix to get the pure Base64 string
             val cleanBase64 = base64String.replace("data:image/png;base64,", "")
             val imageBytes = android.util.Base64.decode(cleanBase64, android.util.Base64.DEFAULT)
-            // You can now write these imageBytes to the MediaStore/Gallery!
-            runOnUiThread { toast("Map exported successfully!") }
+
+            val filename = "MindMap_${System.currentTimeMillis()}.png"
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/VizuaLearn")
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+            }
+
+            val resolver = contentResolver
+            val uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+            try {
+                uri?.let {
+                    val outputStream: OutputStream? = resolver.openOutputStream(it)
+                    outputStream?.use { stream -> stream.write(imageBytes) }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        contentValues.clear()
+                        contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        resolver.update(it, contentValues, null, null)
+                    }
+                    runOnUiThread { toast("Exported mind map to images!") }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                runOnUiThread { toast("Failed to save image.") }
+            }
         }
     }
 
@@ -46,42 +80,37 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mind_map_view)
 
-        // 1. Get Intent Data
         val mapId = intent.getIntExtra("EXTRA_MAP_ID", -1)
-        val mapTitle = intent.getStringExtra("EXTRA_MAP_TITLE") ?: "Main Concept"
+        val mapTitle = intent.getStringExtra("EXTRA_MAP_TITLE") ?: "Mind Map"
 
-        // 2. Setup MVP
         val repository = StudySetRepository(AppDatabase.getDatabase(this).studySetDao())
         presenter = MindMapViewPresenter(this, MindMapViewModel(repository))
 
-        // 3. Setup Basic UI
         findViewById<ImageView>(R.id.imageviewBack).setOnClickListener { finish() }
 
-        // 4. Setup WebView
         webView = findViewById(R.id.webViewCytoscape)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
-        webView.webViewClient = WebViewClient()
         webView.webChromeClient = WebChromeClient()
-
-        // Register the bridge so HTML can talk to Kotlin
         webView.addJavascriptInterface(WebAppInterface(), "Android")
 
-        // Load the local HTML file
-        webView.loadUrl("file:///android_asset/mindmap.html")
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                isPageLoaded = true
+                pendingJsonData?.let { base64Json ->
+                    webView.evaluateJavascript("javascript:loadGraphBase64('$base64Json')", null)
+                    pendingJsonData = null
+                }
+            }
+        }
 
-        // 5. Tell the Presenter to load the data!
-        // Slight delay ensures the HTML canvas is ready to receive data.
-        webView.postDelayed({
-            presenter.loadMapData(mapId, mapTitle)
-        }, 500)
+        webView.loadUrl("file:///android_asset/mindmap.html")
+        presenter.loadMapData(mapId, mapTitle)
 
         getLinearLayout(R.id.linearlayoutBtnExport)?.setOnClickListener {
             webView.evaluateJavascript("javascript:exportToAndroid()", null)
         }
     }
-
-    // --- VIEW CONTRACT IMPLEMENTATIONS ---
 
     override fun setMapHeaders(title: String, subtitle: String) {
         findViewById<TextView>(R.id.textviewMapTitle).text = title
@@ -89,8 +118,11 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
     }
 
     override fun injectGraphData(jsonString: String) {
-        // Execute the JS function inside the WebView
-        webView.evaluateJavascript("javascript:loadGraph('$jsonString')", null)
+        if (isPageLoaded) {
+            webView.evaluateJavascript("javascript:loadGraphBase64('$jsonString')", null)
+        } else {
+            pendingJsonData = jsonString
+        }
     }
 
     override fun updateNodeDetailsCard(title: String, description: String) {

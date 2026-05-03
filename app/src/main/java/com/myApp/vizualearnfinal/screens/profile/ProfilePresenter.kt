@@ -18,7 +18,8 @@ class ProfilePresenter(
             model.getEmail(),
             model.getSchool(),
             model.getCourse(),
-            model.getAddress()
+            model.getAddress(),
+            model.getMemberSince() // <-- NEW
         )
 
         // Fetch the real stats from Room Database in the background

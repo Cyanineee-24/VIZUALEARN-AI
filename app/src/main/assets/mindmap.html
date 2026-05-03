@@ -150,6 +150,11 @@
             window.Android.saveImage(b64);
         }
     }
+
+    function loadGraphBase64(base64String) {
+        var jsonString = decodeURIComponent(escape(window.atob(base64String)));
+        loadGraph(jsonString);
+    }
 </script>
 </body>
 </html>

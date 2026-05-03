@@ -4,7 +4,7 @@ import com.myApp.vizualearnfinal.data.model.Flashcard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
- import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withContext
 
 class FlashCardViewPresenter(
     private val view: FlashCardViewContract.View,
@@ -14,62 +14,69 @@ class FlashCardViewPresenter(
     private var currentMode: String = "Study Mode"
     private var originalCards: List<Flashcard> = emptyList()
 
-    // The active queue (cards still to be learned)
     private var studyQueue: ArrayDeque<Flashcard> = ArrayDeque()
 
-    // Cards that have been "Got It!"
+    // FIX: This set is the source of truth for what's been learned this session
     private val learnedCardIds = mutableSetOf<Int>()
 
-    // For peeking (prev/next) without affecting queue
     private var peekIndex: Int = 0
-    private var peekMode: Boolean = false  // true when user is browsing with arrows
+    private var peekMode: Boolean = false
     private var isShowingFront: Boolean = true
 
     private var currentDeckId: Int = -1
 
     override fun loadDeck(deckId: Int) {
         currentDeckId = deckId
-        if (deckId == -1) { 
+        if (deckId == -1) {
             view.showMessage("Error loading deck")
             view.finishActivity()
-            return 
+            return
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            // 1. Load cards
             originalCards = model.getCardsForDeck(deckId)
-            
-            if (originalCards.isEmpty()) { 
+
+            if (originalCards.isEmpty()) {
                 view.showMessage("No cards in this deck")
                 view.finishActivity()
-                return@launch 
+                return@launch
             }
 
-            // 2. Load Deck and Study Set details (Suspended calls moved inside coroutine)
             val deck = model.getDeckById(deckId)
             val deckTitle = deck?.deckName ?: "Deck View"
-            
+
             val setTitle = if (deck != null) {
                 model.getParentStudySet(deck.studySetId)?.setName ?: "Study Set"
             } else {
                 "Study Set"
             }
 
-            // 3. Update UI
             view.setHeaders(deckTitle, setTitle, originalCards.size)
+
+            // FIX: Load previously saved learned IDs from SharedPreferences so
+            // progress is restored if the user reopens the deck
+            learnedCardIds.clear()
+            learnedCardIds.addAll(model.getLearnedCardIds(deckId))
+
             resetStudySession()
         }
     }
 
     private fun resetStudySession() {
-        studyQueue = ArrayDeque(originalCards)
+        // Only queue cards not yet learned
+        val remainingCards = originalCards.filter { it.id !in learnedCardIds }
+        studyQueue = ArrayDeque(remainingCards)
         peekIndex = 0
         peekMode = false
         isShowingFront = true
-        learnedCardIds.clear()
 
-        view.updateProgressUI(0, originalCards.size)
-        showCurrentCard()
+        view.updateProgressUI(learnedCardIds.size, originalCards.size)
+
+        if (studyQueue.isEmpty() && learnedCardIds.isNotEmpty()) {
+            view.showMessage("🎉 You've already learned all cards in this deck!")
+        } else {
+            showCurrentCard()
+        }
     }
 
     private fun showCurrentCard() {
@@ -78,8 +85,14 @@ class FlashCardViewPresenter(
             return
         }
         val card = if (peekMode) studyQueue[peekIndex] else studyQueue.first()
-        view.displayCard(card, isShowingFront,
-            learnedCardIds.size, originalCards.size)
+        view.displayCard(card, isShowingFront, learnedCardIds.size, originalCards.size)
+    }
+
+    // FIX: Helper that persists progress to SharedPreferences immediately
+    private fun persistProgress() {
+        if (currentDeckId != -1) {
+            model.saveLearnedCardIds(currentDeckId, learnedCardIds)
+        }
     }
 
     override fun onCardTapped() {
@@ -106,7 +119,6 @@ class FlashCardViewPresenter(
     override fun onActionClicked(action: String) {
         if (studyQueue.isEmpty()) return
 
-        // If peeking, bring focus back to front of queue first
         peekMode = false
         peekIndex = 0
         isShowingFront = true
@@ -115,16 +127,23 @@ class FlashCardViewPresenter(
             "CORRECT" -> {
                 val card = studyQueue.removeFirst()
                 learnedCardIds.add(card.id)
+
+                // FIX: Persist immediately so the progress is never lost
+                persistProgress()
+
                 view.updateProgressUI(learnedCardIds.size, originalCards.size)
 
-                if (studyQueue.isEmpty() && learnedCardIds.size == originalCards.size) {
+                if (studyQueue.isEmpty()) {
                     view.showMessage("🎉 Deck complete! All cards learned!")
+                    // Also update DB progress percentage
+                    CoroutineScope(Dispatchers.Main).launch {
+                        model.saveProgressToDatabase(currentDeckId, originalCards.size)
+                    }
                 } else {
                     showCurrentCard()
                 }
             }
             "WRONG", "SKIP" -> {
-                // Move current card to end of queue
                 val card = studyQueue.removeFirst()
                 studyQueue.addLast(card)
                 showCurrentCard()
@@ -133,9 +152,9 @@ class FlashCardViewPresenter(
     }
 
     override fun onModeSelected(mode: String) {
-        if (currentMode == mode) { 
+        if (currentMode == mode) {
             view.showMessage("Already on $mode")
-            return 
+            return
         }
         currentMode = mode
 
@@ -151,9 +170,12 @@ class FlashCardViewPresenter(
     }
 
     override fun onDoneClicked() {
-        // The ArrayDeque and DeckProgressManager have already been tracking and saving
-        // the learnedCardIds seamlessly behind the scenes. We just close the view!
-        view.finishActivity()
+        // FIX: Persist learned IDs and update DB progress before closing
+        persistProgress()
+        CoroutineScope(Dispatchers.Main).launch {
+            model.saveProgressToDatabase(currentDeckId, originalCards.size)
+            view.finishActivity()
+        }
     }
 
     override fun onReviewEditModeClicked() {
@@ -174,12 +196,15 @@ class FlashCardViewPresenter(
             val mutableOriginal = originalCards.toMutableList()
             val idx = mutableOriginal.indexOfFirst { it.id == cardId }
             if (idx != -1) {
-                val updated = mutableOriginal[idx].copy(frontText = newFront, backText = newBack, contextText = newContext)
+                val updated = mutableOriginal[idx].copy(
+                    frontText = newFront,
+                    backText = newBack,
+                    contextText = newContext
+                )
                 model.updateFlashcard(updated)
                 mutableOriginal[idx] = updated
                 originalCards = mutableOriginal
 
-                // Also update in queue
                 val queueIdx = studyQueue.indexOfFirst { it.id == cardId }
                 if (queueIdx != -1) {
                     studyQueue[queueIdx] = updated

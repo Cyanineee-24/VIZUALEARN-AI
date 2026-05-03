@@ -106,7 +106,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_option_image" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="+ Select Images" android:textColor="#888888" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="+ Press Image Icon to Select Images" android:textColor="#888888" android:textStyle="bold" />
                     </LinearLayout>
 
                     <!-- Container for chosen image thumbnails -->
@@ -143,7 +143,7 @@
                         android:gravity="center"
                         android:orientation="vertical">
                         <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_option_pdf" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="+ Select PDF Document" android:textColor="#888888" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="+ Press PDF Icon to Select PDF Document" android:textColor="#888888" android:textStyle="bold" />
                     </LinearLayout>
 
                     <!-- Text to show the selected filename -->
@@ -176,6 +176,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <include layout="@layout/layout_universal_footer" android:id="@+id/universal_footer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" />
 </RelativeLayout>

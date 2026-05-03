@@ -112,7 +112,7 @@
                     android:gravity="center"
                     android:orientation="horizontal">
                     <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_export" app:tint="#FFFFFF"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Export" android:textColor="#FFFFFF" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Export to Images" android:textColor="#FFFFFF" android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

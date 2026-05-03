@@ -21,7 +21,7 @@ class RegisterActivity : Activity(), RegisterContract.View {
         setContentView(R.layout.activity_register)
 
         app = application as CustomApplication
-        presenter = RegisterPresenter(this, RegisterModel(app))
+        presenter = RegisterPresenter(this, RegisterModel(this, app))
 
         // Handle the values when "Create Account" button is clicked
         getButtonView(R.id.buttonCreateAccount)?.setOnClickListener {

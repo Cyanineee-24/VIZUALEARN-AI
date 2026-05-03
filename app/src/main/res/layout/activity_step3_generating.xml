@@ -98,6 +98,4 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <include layout="@layout/layout_universal_footer" android:id="@+id/layoutUniversalFooter" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" />
 </RelativeLayout>

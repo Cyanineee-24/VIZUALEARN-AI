@@ -49,17 +49,11 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
         daysToGo: Int,
         milestoneProgress: Int
     ) {
-        // Update the massive streak numbers
         getTextView(R.id.textviewStreakCount)?.text = currentStreak.toString()
         getTextView(R.id.textviewBestNumber)?.text = bestStreak.toString()
-
-        // Update the smaller stat blocks at the bottom
         getTextView(R.id.textviewStatTotalNumber)?.text = totalDays.toString()
-
-        // Let's just make the "This Month" stat equal to current streak for now
         getTextView(R.id.textviewStatMonthNumber)?.text = currentStreak.toString()
 
-        // --- THE MILESTONE UPDATE (Using parameters from Presenter!) ---
         getTextView(R.id.textviewMilestoneGoalText)?.text = "$nextMilestone days — $daysToGo to go"
 
         val progressFill = findViewById<AndroidView>(R.id.viewMilestoneFill)
@@ -69,16 +63,18 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
             progressFill.layoutParams = it
         }
 
-        // --- THE DYNAMIC CALENDAR UPDATE ---
-        // 1 = Monday, 7 = Sunday
-        val todayValue = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            LocalDate.now().dayOfWeek.value
-        } else 1 // Fallback
+        // --- THE REAL-TIME CALENDAR & DATE UPDATE ---
+        val today = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            LocalDate.now()
+        } else null
 
-        // Calculate how many days we should light up this week (max 7)
-        val daysToLightUpThisWeek = minOf(currentStreak, todayValue)
+        val todayValue = today?.dayOfWeek?.value ?: 1
 
-        // Arrays holding your exact XML IDs
+        // Find exactly what date Monday was for the current week
+        val startOfWeekDate = today?.minusDays((todayValue - 1).toLong())
+
+        val startDayOfStreakThisWeek = todayValue - currentStreak + 1
+
         val dayLayouts = arrayOf(R.id.linearlayoutDayMon, R.id.linearlayoutDayTue, R.id.linearlayoutDayWed, R.id.linearlayoutDayThu, R.id.linearlayoutDayFri, R.id.linearlayoutDaySat, R.id.linearlayoutDaySun)
         val textViews = arrayOf(R.id.textviewDayMon, R.id.textviewDayTue, R.id.textviewDayWed, R.id.textviewDayThu, R.id.textviewDayFri, R.id.textviewDaySat, R.id.textviewDaySun)
 
@@ -86,16 +82,26 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
             val dayNumber = i + 1
             val layout = getLinearLayout(dayLayouts[i])
             val textView = getTextView(textViews[i])
+            val flameIcon = layout?.getChildAt(0) as? android.widget.ImageView
 
-            // If the day is between (Today - streak) and Today, it's ON
-            if (dayNumber > (todayValue - daysToLightUpThisWeek) && dayNumber <= todayValue) {
-                // Turn ON
-                layout?.getChildAt(0)?.setBackgroundResource(R.drawable.bg_streak_day_active)
+            // --- INJECT THE EXACT DATE ---
+            if (startOfWeekDate != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                val dateForSlot = startOfWeekDate.plusDays(i.toLong())
+                // Formats to "May 4"
+                val monthStr = dateForSlot.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+                textView?.text = "$monthStr ${dateForSlot.dayOfMonth}"
+            }
+
+            // --- THE FLAME LOGIC ---
+            if (dayNumber in startDayOfStreakThisWeek..todayValue) {
+                // Turn ON (Active Streak Day)
+                flameIcon?.setBackgroundResource(R.drawable.bg_streak_day_active)
+                flameIcon?.setImageResource(R.drawable.ft_streak)
                 textView?.setTextColor(Color.WHITE)
             } else {
-                // Turn OFF
-                layout?.getChildAt(0)?.setBackgroundResource(R.drawable.bg_streak_best_box)
-                layout?.getChildAt(0)?.setPadding(0,0,0,0) // Remove padding to hide flame if necessary
+                // Turn OFF (Missed days or Upcoming days)
+                flameIcon?.setBackgroundResource(R.drawable.bg_streak_best_box)
+                flameIcon?.setImageDrawable(null)
                 textView?.setTextColor(Color.parseColor("#555566"))
             }
         }

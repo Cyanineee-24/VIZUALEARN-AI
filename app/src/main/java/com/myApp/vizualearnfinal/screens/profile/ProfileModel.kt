@@ -1,22 +1,20 @@
 package com.myApp.vizualearnfinal.screens.profile
 
+import android.content.Context
 import com.myApp.vizualearnfinal.application.CustomApplication
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
 
-class ProfileModel(private val app: CustomApplication, private val repository: StudySetRepository) {
-    fun getUsername() = app.loginUser?.username ?: ""
-    fun getFirstName() = app.loginUser?.firstName ?: ""
-    fun getLastName() = app.loginUser?.lastName ?: ""
-    fun getEmail() = app.loginUser?.email ?: ""
-    fun getSchool() = app.loginUser?.school ?: ""
-    fun getCourse() = app.loginUser?.course ?: ""
+class ProfileModel(private val context: Context, private val app: CustomApplication, private val repository: StudySetRepository) {
 
-    // NEW: Get Address (Fallback to Argao, Cebu if blank for now)
-    fun getAddress(): String {
-        return app.loginUser?.address ?: ""
-    }
+    private val prefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
 
-    // NEW: Calculate the real database stats!
+    fun getUsername() = prefs.getString("USERNAME", "") ?: ""
+    fun getEmail() = prefs.getString("EMAIL", "") ?: ""
+    fun getSchool() = prefs.getString("SCHOOL", "CIT - U") ?: ""
+    fun getCourse() = prefs.getString("COURSE", "Computer Science") ?: ""
+    fun getAddress() = prefs.getString("ADDRESS", "Argao, Cebu") ?: ""
+    fun getMemberSince() = prefs.getString("MEMBER_SINCE", "May 2026") ?: ""
+
     suspend fun getDatabaseStats(): Pair<Int, Int> {
         val sets = repository.getAllSets()
         val totalMindMaps = sets.sumOf { it.mindMapCount }
@@ -25,6 +23,7 @@ class ProfileModel(private val app: CustomApplication, private val repository: S
     }
 
     fun clearSession() {
+        prefs.edit().clear().apply()
         app.loginUser = null
     }
 }

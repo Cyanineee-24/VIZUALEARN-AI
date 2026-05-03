@@ -13,7 +13,7 @@ import com.myApp.vizualearnfinal.screens.login.LoginActivity
 import com.myApp.vizualearnfinal.utils.getImageView
 import com.myApp.vizualearnfinal.utils.getTextView
 import com.myApp.vizualearnfinal.utils.setTextViewStringValue
-import com.myApp.vizualearnfinal.utils.setupUniversalFooter
+
 
 class ProfileActivity : AppCompatActivity(), ProfileContract.View {
     private lateinit var presenter: ProfilePresenter
@@ -25,12 +25,12 @@ class ProfileActivity : AppCompatActivity(), ProfileContract.View {
 
         app = application as CustomApplication
 
-        // NEW: Initialize Database so we can pass the Repository to the Model
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
-        presenter = ProfilePresenter(this, ProfileModel(app, repository))
 
-        setupUniversalFooter()
+        // FIX: Added 'this' as the first parameter for the Context!
+        presenter = ProfilePresenter(this, ProfileModel(this, app, repository))
+
 
         getImageView(R.id.imageviewEdit)?.setOnClickListener {
             startActivity(Intent(this, EditProfileActivity::class.java))
@@ -45,15 +45,17 @@ class ProfileActivity : AppCompatActivity(), ProfileContract.View {
         presenter.loadProfileData()
     }
 
-    override fun displayUserProfile(username: String, email: String, school: String, course: String, address: String) {
+    // UPDATED: Added memberSince parameter
+    override fun displayUserProfile(username: String, email: String, school: String, course: String, address: String, memberSince: String) {
         setTextViewStringValue(R.id.textviewName, username)
         setTextViewStringValue(R.id.textviewEmail, email)
         setTextViewStringValue(R.id.textviewSchool, school)
         setTextViewStringValue(R.id.textviewSchool2, school)
         setTextViewStringValue(R.id.textviewCourse, course)
-
-        // NOW IT ACTUALLY UPDATES!
         setTextViewStringValue(R.id.textViewLocation, address)
+
+        // NEW: Wire up the Member Since date!
+        setTextViewStringValue(R.id.textviewMemberSince, memberSince)
     }
 
     override fun displayStats(mindMapsCount: Int, cardsCount: Int) {

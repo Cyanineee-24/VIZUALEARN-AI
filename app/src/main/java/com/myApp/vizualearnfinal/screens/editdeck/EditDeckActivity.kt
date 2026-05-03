@@ -13,6 +13,7 @@ import com.myApp.vizualearnfinal.R
 import com.myApp.vizualearnfinal.data.database.AppDatabase
 import com.myApp.vizualearnfinal.data.model.Flashcard
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
+import com.myApp.vizualearnfinal.utils.getTextView
 import com.myApp.vizualearnfinal.utils.toast
 
 class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
@@ -21,7 +22,6 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // REUSING THE STEP 4 RESULT LAYOUT
         setContentView(R.layout.activity_step4_result)
 
         val deckId = intent.getIntExtra("EXTRA_DECK_ID", -1)
@@ -32,10 +32,13 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
 
         setupUI()
         presenter.loadDeck(deckId)
+
+        getTextView(R.id.textviewAddCard)?.setOnClickListener {
+            presenter.onAddCardClicked()
+        }
     }
 
     override fun setupUI() {
-        // Morphing the Step 4 UI into the Edit UI
         findViewById<TextView>(R.id.textviewHeaderTitle)?.text = "Review/Edit Mode"
         findViewById<TextView>(R.id.textviewStepNumber)?.visibility = View.GONE
         findViewById<TextView>(R.id.textviewFlashcardSetName)?.text = "Edit Deck"
@@ -45,7 +48,6 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
 
         findViewById<ImageView>(R.id.imageviewBack)?.setOnClickListener { finishActivity() }
 
-        // Reusing the "Save" button at the top to just close the screen since DB saves instantly
         findViewById<TextView>(R.id.textviewSave)?.setOnClickListener {
             finishActivity()
         }
@@ -78,7 +80,6 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
                 itemView.findViewById<LinearLayout>(R.id.linearlayoutContextPrompt)?.visibility = View.VISIBLE
             }
 
-            // Bind click listeners to the Presenter
             itemView.findViewById<ImageView>(R.id.imageviewEditCard)?.setOnClickListener {
                 presenter.onEditClicked(index)
             }
@@ -99,7 +100,7 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
         }
     }
 
-    override fun showEditDialog(index: Int, card: Flashcard) {
+    override fun showEditCardDialog(index: Int, card: Flashcard?) {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.layout_bottom_sheet_edit_card, null)
         bottomSheetDialog.setContentView(view)
@@ -109,10 +110,28 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
         val edittextEditContext = view.findViewById<EditText>(R.id.edittextEditContext)
         val textviewSaveCardChanges = view.findViewById<TextView>(R.id.textviewSaveCardChanges)
         val textviewCancel = view.findViewById<TextView>(R.id.textviewCancel)
+        val btnGenerateAi = view.findViewById<LinearLayout>(R.id.btnGenerateAiBottomSheet)
 
-        edittextEditFront.setText(card.frontText)
-        edittextEditBack.setText(card.backText)
-        edittextEditContext.setText(card.contextText ?: "")
+        if (card == null) {
+            view.findViewById<TextView>(R.id.textviewEditTitle).text = "Add New Card"
+        } else {
+            edittextEditFront.setText(card.frontText)
+            edittextEditBack.setText(card.backText)
+            edittextEditContext.setText(card.contextText ?: "")
+        }
+
+        btnGenerateAi.setOnClickListener {
+            val front = edittextEditFront.text.toString().trim()
+            val back = edittextEditBack.text.toString().trim()
+            if (front.isEmpty() || back.isEmpty()) {
+                toast("Please fill out the Front and Back first!")
+                return@setOnClickListener
+            }
+            toast("Gemini is writing context...")
+            presenter.generateContextForText(front, back) { generatedText ->
+                edittextEditContext.setText(generatedText)
+            }
+        }
 
         textviewCancel.setOnClickListener { bottomSheetDialog.dismiss() }
 
@@ -122,14 +141,17 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
             val newContext = edittextEditContext.text.toString().trim().takeIf { it.isNotEmpty() }
 
             if (newFront.isEmpty() || newBack.isEmpty()) {
-                showMessage("Front and Back text cannot be empty!")
+                toast("Front and Back cannot be empty!")
                 return@setOnClickListener
             }
 
-            presenter.onSaveCardChanges(card.id, newFront, newBack, newContext)
+            if (card == null) {
+                presenter.onAddCardSaved(newFront, newBack, newContext)
+            } else {
+                presenter.onEditCardSaved(index, newFront, newBack, newContext)
+            }
             bottomSheetDialog.dismiss()
         }
-
         bottomSheetDialog.show()
     }
 
