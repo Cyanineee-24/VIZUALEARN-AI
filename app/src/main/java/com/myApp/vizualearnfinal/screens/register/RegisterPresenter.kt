@@ -10,6 +10,7 @@ class RegisterPresenter(
         first: String,
         last: String,
         email: String,
+        address: String,
         school: String,
         course: String,
         pass: String,

@@ -33,11 +33,12 @@ class RegisterActivity : Activity(), RegisterContract.View {
             val pass = getEditTextStringValue(R.id.edittextPassword)
             val confirm = getEditTextStringValue(R.id.edittextConfirmPassword)
             val username = getEditTextStringValue(R.id.edittextUsername)
+            val address = getEditTextStringValue(R.id.edittextAddress)
 
             // Get checkbox state
             val termsChecked = findViewById<CheckBox>(R.id.checkboxTerms).isChecked
 
-            presenter.register(username, first, last, email, school, course, pass, confirm, termsChecked)
+            presenter.register(username, first, last, email, address, school, course, pass, confirm, termsChecked)
         }
 
         // If user presses the back to login

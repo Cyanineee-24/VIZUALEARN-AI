@@ -13,7 +13,7 @@ interface RegisterContract {
 
         fun register(
             username: String,
-            first: String, last: String, email: String,
+            first: String, last: String, email: String, address: String,
             school: String, course: String,
             pass: String, confirmPass: String,
             isTermsChecked: Boolean

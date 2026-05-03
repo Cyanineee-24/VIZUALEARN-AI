@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "flashcards")
 data class Flashcard(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val setId: Int, // The ID of the StudySet this card belongs to
+    val deckId: Int,
     val frontText: String,
-    val backText: String
+    val backText: String,
+    val contextText: String? = null // NEW: Stores the AI-generated or manual context
 )

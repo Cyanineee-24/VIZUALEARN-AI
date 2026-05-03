@@ -117,3 +117,11 @@ fun View.getImageView(id: Int): ImageView? {
 fun View.getTextView(id: Int): TextView? {
     return findViewById<TextView>(id)
 }
+
+fun View.getLinearLayout(id: Int): LinearLayout? {
+    return findViewById<LinearLayout>(id)
+}
+
+fun View.getEditText(id: Int): EditText? {
+    return findViewById<EditText>(id)
+}

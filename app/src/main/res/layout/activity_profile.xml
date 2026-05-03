@@ -161,9 +161,10 @@
                                 android:layout_height="48dp"
                                 android:src="@drawable/books" />
                             <TextView
+                                android:id="@+id/textviewMindMapsCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="18"
+                                android:text="0"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 android:textColor="#000000"
@@ -196,9 +197,10 @@
                                 android:layout_height="48dp"
                                 android:src="@drawable/cards" />
                             <TextView
+                                android:id="@+id/textviewCardsCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="492"
+                                android:text="0"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 android:textColor="#000000"

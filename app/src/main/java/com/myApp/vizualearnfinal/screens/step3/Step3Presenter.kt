@@ -14,7 +14,7 @@ class Step3Presenter(
 ) : Step3Contract.Presenter {
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-1.5-flash",
+        modelName = "gemini-2.5-flash-lite",
         apiKey = Constants.GEMINI_API_KEY
     )
 

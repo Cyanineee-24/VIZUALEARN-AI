@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linearlayoutBottomSheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_rounded_card"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textviewEditTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:fontFamily="sans-serif-black"
+            android:text="Edit Card"
+            android:textColor="#1A1A1A"
+            android:textSize="18sp" />
+
+        <TextView
+        android:id="@+id/textviewCancel"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/bg_btn_cancel_red"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:text="Cancel"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+        <!-- Ensure you have an 'x' icon here -->
+    </RelativeLayout>
+
+    <!-- Front Text Input -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="QUESTION (FRONT)"
+        android:textColor="#E53935"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edittextEditFront"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_dashed_box_light"
+        android:gravity="top|start"
+        android:hint="Enter question here"
+        android:minHeight="80dp"
+        android:padding="12dp"
+        android:textColor="#1A1A1A"
+        android:textSize="14sp" />
+
+    <!-- Back Text Input -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="ANSWER (BACK)"
+        android:textColor="#43A047"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edittextEditBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_dashed_box_light"
+        android:gravity="top|start"
+        android:hint="Enter answer here"
+        android:minHeight="80dp"
+        android:padding="12dp"
+        android:textColor="#1A1A1A"
+        android:textSize="14sp" />
+
+    <!-- Context Text Input -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="FULL CONTEXT (OPTIONAL)"
+        android:textColor="#A0A0A0"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edittextEditContext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_dashed_box_light"
+        android:gravity="top|start"
+        android:hint="Add a detailed explanation..."
+        android:minHeight="100dp"
+        android:padding="12dp"
+        android:textColor="#1A1A1A"
+        android:textSize="14sp" />
+
+    <!-- Save Button -->
+    <TextView
+        android:id="@+id/textviewSaveCardChanges"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_btn_generate_purple"
+        android:gravity="center"
+        android:text="Save Changes"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

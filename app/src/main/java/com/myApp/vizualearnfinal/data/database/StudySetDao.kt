@@ -3,12 +3,11 @@ package com.myApp.vizualearnfinal.data.database
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.myApp.vizualearnfinal.data.model.Flashcard
-import com.myApp.vizualearnfinal.data.model.MindMapNode
-import com.myApp.vizualearnfinal.data.model.StudySet
+import com.myApp.vizualearnfinal.data.model.*
 
 @Dao
 interface StudySetDao {
+
     // --- STUDY SETS ---
     @Insert
     suspend fun insert(studySet: StudySet): Long
@@ -19,24 +18,51 @@ interface StudySetDao {
     @Query("SELECT * FROM study_sets WHERE id = :setId LIMIT 1")
     suspend fun getSetById(setId: Int): StudySet?
 
-    // Automatically updates the folder counts!
     @Query("UPDATE study_sets SET cardCount = cardCount + :count WHERE id = :setId")
     suspend fun updateFlashcardCount(setId: Int, count: Int)
 
     @Query("UPDATE study_sets SET mindMapCount = mindMapCount + :count WHERE id = :setId")
     suspend fun updateMindMapCount(setId: Int, count: Int)
 
-    // --- FLASHCARDS ---
+    // --- DECKS & FLASHCARDS ---
+    @Insert
+    suspend fun insertDeck(deck: FlashcardDeck): Long // Returns the new Deck ID
+
+    @Query("SELECT * FROM flashcard_decks WHERE studySetId = :setId")
+    suspend fun getDecksForSet(setId: Int): List<FlashcardDeck>
+
     @Insert
     suspend fun insertFlashcards(cards: List<Flashcard>)
 
-    @Query("SELECT * FROM flashcards WHERE setId = :setId")
-    suspend fun getFlashcardsForSet(setId: Int): List<Flashcard>
+    @Query("SELECT * FROM flashcards WHERE deckId = :deckId")
+    suspend fun getFlashcardsForDeck(deckId: Int): List<Flashcard>
 
-    // --- MIND MAP NODES ---
+    // --- MAPS & NODES ---
+    @Insert
+    suspend fun insertMindMap(mindMap: MindMap): Long // Returns the new Map ID
+
+    @Query("SELECT * FROM mind_maps WHERE studySetId = :setId")
+    suspend fun getMindMapsForSet(setId: Int): List<MindMap>
+
     @Insert
     suspend fun insertMindMapNodes(nodes: List<MindMapNode>)
 
-    @Query("SELECT * FROM mindmap_nodes WHERE setId = :setId")
+    @Query("SELECT * FROM mindmap_nodes WHERE mindMapId = :mapId")
+    suspend fun getNodesForMap(mapId: Int): List<MindMapNode>
+
+    // Gets all flashcards that belong to any deck inside a specific Study Set
+    @Query("""
+        SELECT flashcards.* FROM flashcards 
+        INNER JOIN flashcard_decks ON flashcards.deckId = flashcard_decks.id 
+        WHERE flashcard_decks.studySetId = :setId
+    """)
+    suspend fun getFlashcardsForSet(setId: Int): List<Flashcard>
+
+    // Gets all nodes that belong to any mind map inside a specific Study Set
+    @Query("""
+        SELECT mindmap_nodes.* FROM mindmap_nodes 
+        INNER JOIN mind_maps ON mindmap_nodes.mindMapId = mind_maps.id 
+        WHERE mind_maps.studySetId = :setId
+    """)
     suspend fun getMindMapNodesForSet(setId: Int): List<MindMapNode>
 }

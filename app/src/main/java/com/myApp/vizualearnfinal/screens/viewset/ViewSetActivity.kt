@@ -1,82 +1,135 @@
-package com.myApp.vizualearnfinal.screens.viewset
+package com.myApp.vizualearnfinal.screens.viewset // Keep your actual package name
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.myApp.vizualearnfinal.R
 import com.myApp.vizualearnfinal.data.database.AppDatabase
-import com.myApp.vizualearnfinal.data.model.Flashcard
-import com.myApp.vizualearnfinal.data.model.MindMapNode
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
-import com.myApp.vizualearnfinal.utils.*
+import com.myApp.vizualearnfinal.screens.flashcardview.FlashCardViewActivity
+import com.myApp.vizualearnfinal.screens.mindmapview.MindMapViewActivity
+import com.myApp.vizualearnfinal.utils.ContainerAdapter
+import com.myApp.vizualearnfinal.utils.ContainerType
+import com.myApp.vizualearnfinal.utils.DeckItem
+import kotlinx.coroutines.launch
 
-class ViewSetActivity : AppCompatActivity(), ViewSetContract.View {
+class ViewSetActivity : AppCompatActivity() {
 
-    private lateinit var presenter: ViewSetContract.Presenter
-    private var setId: Int = 0
+    private lateinit var flashcardAdapter: ContainerAdapter
+    private lateinit var mindMapAdapter: ContainerAdapter
+    private lateinit var repository: StudySetRepository
+
+    private var currentSetId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_sets)
 
-        setupUniversalFooter()
+        // 1. Get the Set ID passed from the previous screen
+        currentSetId = intent.getIntExtra("EXTRA_SET_ID", -1)
+        if (currentSetId == -1) {
+            Toast.makeText(this, "Error loading set", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
-        // Assume we passed the Set ID from the Dashboard click!
-        setId = intent.getIntExtra("EXTRA_SET_ID", 0)
-
+        // 2. Initialize the Database Repository
         val dao = AppDatabase.getDatabase(this).studySetDao()
-        val repository = StudySetRepository(dao)
-        presenter = ViewSetPresenter(this, ViewSetModel(repository))
+        repository = StudySetRepository(dao)
 
-        // Load all the data for this set
-        presenter.loadSetData(setId)
+        // 3. Setup the UI and Adapters
+        setupUI()
+        setupAdapters()
 
-        getImageView(R.id.imageviewBack)?.setOnClickListener { navigateBack() }
-
-        // Ensure you wire up your universal footer here too!
-        // setupUniversalFooter()
+        // 4. Fetch the Data!
+        loadData()
     }
 
-    override fun displaySetHeader(setName: String, subtitle: String) {
-        getTextView(R.id.textviewSetTitle)?.text = setName
-        getTextView(R.id.textviewSetSubtitle)?.text = subtitle
-    }
+    private fun setupUI() {
+        // Back Button
+        findViewById<ImageView>(R.id.imageviewBack).setOnClickListener {
+            finish()
+        }
 
-    override fun displayFlashcards(cards: List<Flashcard>) {
-        val container = getLinearLayout(R.id.linearlayoutFlashcardSetsContainer)
-        container?.removeAllViews()
+        // Add Flashcard Set Button
+        findViewById<LinearLayout>(R.id.linearlayoutAddNewFlashCardSetButton).setOnClickListener {
+            // TODO: Navigate back to Step 1/2 to generate more cards
+            Toast.makeText(this, "Add Flashcard Set clicked", Toast.LENGTH_SHORT).show()
+        }
 
-        val inflater = LayoutInflater.from(this)
-        for ((index, card) in cards.withIndex()) {
-            // We get to reuse the layout from Step 4!
-            val itemView = inflater.inflate(R.layout.item_flashcard_preview, container, false)
-
-            itemView.getTextView(R.id.textviewBadgeNumber)?.text = "${index + 1}"
-            itemView.getTextView(R.id.textviewCardTitle)?.text = "CARD ${index + 1}"
-            itemView.getTextView(R.id.textviewCardFront)?.text = card.frontText
-            itemView.getTextView(R.id.textviewCardBack)?.text = card.backText
-
-            container?.addView(itemView)
+        // Add Mind Map Button
+        findViewById<LinearLayout>(R.id.linearlayoutAddNewMindMapButton).setOnClickListener {
+            // TODO: Navigate back to Step 1/2 to generate a new mind map
+            Toast.makeText(this, "Add Mind Map clicked", Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun displayMindMapNodes(nodes: List<MindMapNode>) {
-        val container = getLinearLayout(R.id.linearlayoutMindmapsContainer)
-        container?.removeAllViews()
+    private fun setupAdapters() {
+        // Initialize Flashcard Adapter
+        flashcardAdapter = ContainerAdapter(emptyList()) { id, type ->
+            // FIRE THE INTENT TO OPEN THE DECK
+            val intent = Intent(this, FlashCardViewActivity::class.java)
+            intent.putExtra("EXTRA_DECK_ID", id)
+            startActivity(intent)
+        }
+        findViewById<RecyclerView>(R.id.rvFlashcardDecks).adapter = flashcardAdapter
 
-        // For now, if there are nodes, we can just print their titles.
-        // We will build the full visual canvas later!
-        for (node in nodes) {
-            val textView = android.widget.TextView(this).apply {
-                text = "• ${node.title}: ${node.description}"
-                setTextColor(android.graphics.Color.parseColor("#1A1A1A"))
-                setPadding(0, 16, 0, 16)
+        // Initialize Mind Map Adapter
+        mindMapAdapter = ContainerAdapter(emptyList()) { id, type ->
+            // FIRE THE INTENT TO OPEN THE MIND MAP
+            val intent = Intent(this, MindMapViewActivity::class.java)
+            intent.putExtra("EXTRA_MAP_ID", id)
+            startActivity(intent)
+        }
+        findViewById<RecyclerView>(R.id.rvMindMaps).adapter = mindMapAdapter
+    }
+
+    private fun loadData() {
+        lifecycleScope.launch {
+            // Fetch the parent Study Set to get the Title AND the Icon
+            val studySet = repository.getSetById(currentSetId)
+            findViewById<TextView>(R.id.textviewSetTitle).text = studySet?.setName ?: "Unknown Set"
+            findViewById<TextView>(R.id.textviewSetSubtitle).text = "Items inside this set"
+
+            // NEW: Get the integer ID of the parent's icon (Fallback to ic_book if null)
+            val iconName = studySet?.iconResName ?: "ic_book"
+            val dynamicIconId = resources.getIdentifier(iconName, "drawable", packageName)
+
+            // --- FETCH FLASHCARD DECKS ---
+            val dbDecks = repository.getDecksForSet(currentSetId)
+            val flashcardItems = dbDecks.map { deck ->
+                val cards = repository.getFlashcardsForDeck(deck.id)
+                DeckItem(
+                    id = deck.id,
+                    title = deck.deckName,
+                    subtitle = "${cards.size} Cards",
+                    progress = deck.progress,
+                    type = ContainerType.FLASHCARD,
+                    iconResId = dynamicIconId // <--- PASSING THE ICON!
+                )
             }
-            container?.addView(textView)
-        }
-    }
+            flashcardAdapter.updateData(flashcardItems)
 
-    override fun navigateBack() {
-        finish()
+            // --- FETCH MIND MAPS ---
+            val dbMaps = repository.getMindMapsForSet(currentSetId)
+            val mindMapItems = dbMaps.map { map ->
+                val nodes = repository.getNodesForMap(map.id)
+                DeckItem(
+                    id = map.id,
+                    title = map.mapName,
+                    subtitle = "${nodes.size} nodes in total",
+                    progress = 0,
+                    type = ContainerType.MIND_MAP,
+                    iconResId = dynamicIconId // <--- PASSING THE ICON!
+                )
+            }
+            mindMapAdapter.updateData(mindMapItems)
+        }
     }
 }

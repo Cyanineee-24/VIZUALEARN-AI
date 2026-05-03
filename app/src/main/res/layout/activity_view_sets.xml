@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA">
 
-    <!-- ================= STICKY HEADER ================= -->
+    <!-- ================= STICKY HEADER (Unchanged) ================= -->
     <RelativeLayout
         android:id="@+id/relativelayoutStickyHeader"
         android:layout_width="match_parent"
@@ -62,7 +63,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Edit Button -->
         <ImageView
             android:id="@+id/imageviewEdit"
             android:layout_width="40dp"
@@ -74,7 +74,6 @@
     </RelativeLayout>
 
     <!-- ================= SCROLLABLE CONTENT ================= -->
-    <!-- Notice: layout_above is back, pointing to the footer -->
     <ScrollView
         android:id="@+id/scrollviewMain"
         android:layout_width="match_parent"
@@ -103,17 +102,20 @@
                 android:textColor="#1A1A1A"
                 android:textSize="14sp" />
 
-            <!-- Dynamic Container for Flash Card Sets -->
-            <LinearLayout
-                android:id="@+id/linearlayoutFlashcardSetsContainer"
+            <!-- UPGRADED: RecyclerView instead of empty LinearLayout -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFlashcardDecks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:orientation="vertical" />
+                android:layout_marginBottom="12dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_deck_card" />
 
-            <!-- Add Flash Cards Dashed Button -->
+            <!-- Add Flash Cards Dashed Button (Fixed ID) -->
             <LinearLayout
-                android:id="@+id/linearlayoutAddNewMindMapButton"
+                android:id="@+id/linearlayoutAddNewFlashCardSetButton"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:gravity="center"
@@ -151,20 +153,23 @@
                 android:textColor="#1A1A1A"
                 android:textSize="14sp" />
 
-            <!-- Dynamic Container for Mind Maps -->
-            <LinearLayout
-                android:id="@+id/linearlayoutMindmapsContainer"
+            <!-- UPGRADED: RecyclerView instead of empty LinearLayout -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMindMaps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:orientation="vertical" />
+                android:layout_marginBottom="12dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_deck_card" />
 
-            <!-- Add Mind Map Dashed Button -->
+            <!-- Add Mind Map Dashed Button (Fixed ID) -->
             <LinearLayout
-                android:id="@+id/linearlayoutAddNewFlashCardSetButton"
+                android:id="@+id/linearlayoutAddNewMindMapButton"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/bg_btn_generate_purple"
                 android:gravity="center"
                 android:orientation="horizontal">
@@ -175,7 +180,7 @@
                     android:src="@drawable/ic_sparkles"
                     app:tint="#FFD700" />
                 <TextView
-                    android:id="@+id/textviewAddNewFlashCardSet"
+                    android:id="@+id/textviewAddNewMindMap"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="3dp"
@@ -188,7 +193,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- ================= UNIVERSAL FOOTER ================= -->
+    <!-- ================= UNIVERSAL FOOTER (Unchanged) ================= -->
     <include
         layout="@layout/layout_universal_footer"
         android:id="@+id/universal_footer"

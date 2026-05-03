@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <!-- Pulling Cytoscape directly from the internet -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F8F9FA; font-family: sans-serif; }
+        #cy { width: 100vw; height: 100vh; display: block; }
+    </style>
+</head>
+<body>
+<div id="cy"></div>
+<script>
+    var cy = cytoscape({
+        container: document.getElementById('cy'),
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'background-color': '#A06CD5',
+                    'label': 'data(label)',
+                    'color': '#fff',
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    'font-size': '12px',
+                    'width': 'label',
+                    'height': 'label',
+                    'padding': '16px',
+                    'shape': 'round-rectangle'
+                }
+            },
+            {
+                selector: 'node[id = "root"]',
+                style: {
+                    'background-color': '#FFD700',
+                    'color': '#000',
+                    'font-size': '16px',
+                    'font-weight': 'bold'
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 3,
+                    'line-color': '#CCCCCC',
+                    'target-arrow-color': '#CCCCCC',
+                    'target-arrow-shape': 'triangle',
+                    'curve-style': 'bezier'
+                }
+            }
+        ],
+        layout: {
+            name: 'cose',
+            padding: 30,
+            animate: true
+        }
+    });
+
+    // Your Kotlin code will call this function to inject the database nodes!
+    function loadGraph(elementsJson) {
+            cy.elements().remove();
+            cy.add(JSON.parse(elementsJson));
+            cy.layout({ name: 'cose', padding: 50 }).run();
+
+            // NEW: Listen for taps on nodes!
+            cy.on('tap', 'node', function(evt){
+                var node = evt.target;
+                // Don't do anything if they click the central "Root" title node
+                if(node.id() !== 'root') {
+                    // Send the data back to Android!
+                    Android.onNodeTapped(node.data('label'), node.data('description'));
+                }
+            });
+        }
+</script>
+</body>
+</html>

@@ -5,11 +5,17 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.myApp.vizualearnfinal.data.model.Flashcard
+import com.myApp.vizualearnfinal.data.model.FlashcardDeck
+import com.myApp.vizualearnfinal.data.model.MindMap
 import com.myApp.vizualearnfinal.data.model.MindMapNode
 import com.myApp.vizualearnfinal.data.model.StudySet
 
-// 1. Added Flashcard and MindMapNode to entities, bumped version to 2
-@Database(entities = [StudySet::class, Flashcard::class, MindMapNode::class], version = 2, exportSchema = false)
+// 1. Added Flashcard and MindMapNode to entities, bumped version to 3
+@Database(
+    entities = [StudySet::class, FlashcardDeck::class, Flashcard::class, MindMap::class, MindMapNode::class],
+    version = 3,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun studySetDao(): StudySetDao
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- The Light Green/Yellow Icon Container -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/iconContainer"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            app:cardBackgroundColor="#EAF4D3"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView android:id="@+id/imageDeckIcon" android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="center" android:src="@drawable/ic_launcher_foreground" app:tint="#A06CD5"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Deck Title -->
+        <TextView android:id="@+id/textDeckTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginEnd="8dp" android:fontFamily="sans-serif-medium" android:textColor="#000000" android:textSize="16sp" app:layout_constraintEnd_toStartOf="@+id/textProgressPercent" app:layout_constraintStart_toEndOf="@+id/iconContainer" app:layout_constraintTop_toTopOf="@+id/iconContainer" tools:text="Cardiovascular System"/>
+
+        <!-- Card Count Subtitle -->
+        <TextView android:id="@+id/textCardCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textColor="#888888" android:textSize="12sp" app:layout_constraintStart_toStartOf="@+id/textDeckTitle" app:layout_constraintTop_toBottomOf="@+id/textDeckTitle" tools:text="8 Cards"/>
+
+        <!-- Red Percentage Text -->
+        <TextView android:id="@+id/textProgressPercent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:textColor="#FF0000" android:textSize="16sp" app:layout_constraintBottom_toBottomOf="@+id/textDeckTitle" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="@+id/textDeckTitle" tools:text="39%"/>
+
+        <!-- Thick Red Progress Bar -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:indicatorColor="#FF0000"
+            app:trackColor="#E0E0E0"
+            app:trackCornerRadius="4dp"
+            app:trackThickness="6dp"
+            app:layout_constraintBottom_toBottomOf="@+id/iconContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/textDeckTitle"
+            tools:progress="39" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

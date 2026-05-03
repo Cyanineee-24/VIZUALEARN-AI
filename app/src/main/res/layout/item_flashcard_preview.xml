@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"
@@ -8,9 +9,11 @@
     android:orientation="vertical"
     android:padding="20dp">
 
+    <!-- Header: Card Number + Edit/Delete Icons -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <TextView
             android:id="@+id/textviewBadgeNumber"
             android:layout_width="24dp"
@@ -21,6 +24,7 @@
             android:textColor="#E53935"
             android:textSize="12sp"
             android:textStyle="bold"/>
+
         <TextView
             android:id="@+id/textviewCardTitle"
             android:layout_width="wrap_content"
@@ -32,8 +36,31 @@
             android:textColor="#A0A0A0"
             android:textSize="12sp"
             android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageviewEditCard"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/pencil"
+                android:padding="2dp"/>
+
+            <ImageView
+                android:id="@+id/imageviewDeleteCard"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_delete_red"
+                android:padding="2dp"/>
+        </LinearLayout>
     </RelativeLayout>
 
+    <!-- Q & A Boxes -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -41,21 +68,8 @@
         android:background="@drawable/bg_box_q_red"
         android:orientation="vertical"
         android:padding="12dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Q - FRONT"
-            android:textSize="10sp"
-            android:textColor="#E53935"
-            android:textStyle="bold"/>
-        <TextView
-            android:id="@+id/textviewCardFront"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Question text here"
-            android:textColor="#1A1A1A"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Q - FRONT" android:textSize="10sp" android:textColor="#E53935" android:textStyle="bold"/>
+        <TextView android:id="@+id/textviewCardFront" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Question text here" android:textColor="#1A1A1A" android:layout_marginTop="4dp" android:textSize="14sp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -65,20 +79,83 @@
         android:background="@drawable/bg_box_a_green"
         android:orientation="vertical"
         android:padding="12dp">
-        <TextView
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="A - BACK" android:textSize="10sp" android:textColor="#43A047" android:textStyle="bold"/>
+        <TextView android:id="@+id/textviewCardBack" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Answer text here" android:textColor="#1A1A1A" android:layout_marginTop="4dp" android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- FULL CONTEXT SECTION -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="A - BACK"
-            android:textSize="10sp"
-            android:textColor="#43A047"
-            android:textStyle="bold"/>
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_book" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="Full Context" android:textColor="#1A1A1A" android:fontFamily="sans-serif-black" android:textSize="12sp"/>
+        </LinearLayout>
+
         <TextView
-            android:id="@+id/textviewCardBack"
+            android:id="@+id/textviewSavedContext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Answer text here"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_dashed_box_light"
+            android:padding="16dp"
             android:textColor="#1A1A1A"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"/>
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="This is the saved context explaining the card in detail."
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/linearlayoutContextPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_dashed_box_light"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add a detailed explanation for this card" android:textColor="#A0A0A0" android:textSize="10sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textviewGenerateContext"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_btn_generate_purple"
+                    android:gravity="center"
+                    android:text="✨ Generate with AI"
+                    android:textColor="#FFFFFF"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <View android:layout_width="8dp" android:layout_height="0dp"/>
+
+                <TextView
+                    android:id="@+id/textviewWriteManually"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_btn_outline_gray"
+                    android:gravity="center"
+                    android:text="Write Manually"
+                    android:textColor="#666666"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

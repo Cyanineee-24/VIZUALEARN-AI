@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA">
+
+    <!-- ================= STICKY HEADER ================= -->
+    <RelativeLayout
+        android:id="@+id/relativelayoutStickyHeader"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:background="#FFFFFF"
+        android:paddingStart="24dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="16dp"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageviewBack"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_btn_back"
+                android:padding="6dp"
+                android:src="@drawable/ic_back_arrow"
+                app:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/textviewDeckTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:fontFamily="sans-serif-black"
+                android:textColor="#1A1A1A"
+                android:textSize="20sp"
+                tools:text="Cardiovascular System" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- ================= UNIVERSAL FOOTER ================= -->
+    <include
+        layout="@layout/layout_universal_footer"
+        android:id="@+id/universal_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+    <!-- ================= SCROLLABLE CONTENT ================= -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/universal_footer"
+        android:layout_below="@+id/relativelayoutStickyHeader"
+        android:scrollbars="none">
+
+        <!-- Main Content Wrapper -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="24dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="40dp">
+
+            <!-- Progress Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_outline"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/textviewParentSetName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-black"
+                        android:textColor="#1A1A1A"
+                        android:textSize="12sp"
+                        tools:text="Anatomy and Physiology" />
+
+                    <TextView
+                        android:id="@+id/textviewTotalCardsBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/bg_tag_red_light"
+                        android:paddingStart="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="4dp"
+                        android:textColor="#E53935"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        tools:text="8 Cards" />
+                </RelativeLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressbarStudy"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="12dp"
+                    android:progress="0"
+                    android:progressTint="#E53935" />
+
+                <TextView
+                    android:id="@+id/textviewProgressText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#A0A0A0"
+                    android:textSize="10sp"
+                    tools:text="0 of 8 learned" />
+            </LinearLayout>
+
+            <!-- THE FLASHCARD (Clickable) -->
+
+            <!-- Action Buttons Row -->
+            <LinearLayout
+                android:id="@+id/linearlayoutFlashcardContainer"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_btn_back_gradient"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/textviewCardType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="QUESTION"
+                    android:textColor="#FFFFFF"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/textviewCardContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="sans-serif-black"
+                    android:gravity="center"
+                    android:textColor="#ffffff"
+                    android:textSize="20sp"
+                    tools:text="What are the four chambers of the human heart?" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imageviewPrevCard"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_back_arrow"
+                    app:tint="#1A1A1A" />
+
+                <ImageView
+                    android:id="@+id/imageviewNextCard"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_forward_arrow"
+                    app:tint="#1A1A1A" />
+
+                <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/textviewSkip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_outline"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="SKIP"
+                    android:textColor="#A0A0A0"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textviewWrong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tag_red_light"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="WRONG"
+                    android:textColor="#E53935"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textviewCorrect"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tag_biology"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:text="GOT IT!"
+                    android:textColor="#20C997"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Study Options Header -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:fontFamily="sans-serif-black"
+                android:text="STUDY OPTIONS"
+                android:textColor="#A0A0A0"
+                android:textSize="12sp" />
+
+            <!-- Option 1: Study Mode -->
+            <LinearLayout
+                android:id="@+id/linearlayoutStudyMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_outline"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_tag_blue"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_book" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="Study Mode" android:textColor="#1A1A1A" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Review all cards in order" android:textColor="#A0A0A0" android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Option 2: Quiz Mode++ -->
+            <LinearLayout
+                android:id="@+id/linearlayoutQuizMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_outline"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_light_purple"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_generating_brain" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="Quiz Mode++" android:textColor="#1A1A1A" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Test all questions in random" android:textColor="#A0A0A0" android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Option 3: Review Missed -->
+            <LinearLayout
+                android:id="@+id/linearlayoutReviewMissed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_outline"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_light_red"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_delete_red" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="Review Missed" android:textColor="#1A1A1A" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Review cards marked as wrong" android:textColor="#A0A0A0" android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Edit This Card Button -->
+            <TextView
+                android:id="@+id/textviewEditThisCard"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_btn_continue_orange"
+                android:gravity="center"
+                android:text="+ Edit this Card"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+        </LinearLayout> <!-- Closes the Content Wrapper -->
+    </ScrollView>
+</RelativeLayout>
