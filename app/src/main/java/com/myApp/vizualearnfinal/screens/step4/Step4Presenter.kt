@@ -44,14 +44,15 @@ class Step4Presenter(
                         val obj = jsonArray.getJSONObject(i)
                         parsedNodes.add(
                             MindMapNode(
-                                mindMapId = 0, // Repository assigns the real ID later
+                                mindMapId = 0,
+                                nodeId = obj.optString("id", "node_$i"),      // <--- CATCH ID
+                                parentId = obj.optString("parentId", "root"), // <--- CATCH PARENT
                                 title = obj.optString("title", "No Title"),
                                 description = obj.optString("description", "No Description")
                             )
                         )
                     }
                     view.showMindMapUI(setName, parsedNodes)
-
                 } else {
                     for (i in 0 until jsonArray.length()) {
                         val obj = jsonArray.getJSONObject(i)

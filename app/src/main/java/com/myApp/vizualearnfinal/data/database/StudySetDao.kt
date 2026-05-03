@@ -49,7 +49,7 @@ interface StudySetDao {
     @Insert
     suspend fun insertMindMapNodes(nodes: List<MindMapNode>)
 
-    @Query("SELECT * FROM mindmap_nodes WHERE mindMapId = :mapId")
+    @Query("SELECT * FROM mind_map_nodes WHERE mindMapId = :mapId")
     suspend fun getNodesForMap(mapId: Int): List<MindMapNode>
 
     // Gets all flashcards that belong to any deck inside a specific Study Set
@@ -62,8 +62,8 @@ interface StudySetDao {
 
     // Gets all nodes that belong to any mind map inside a specific Study Set
     @Query("""
-        SELECT mindmap_nodes.* FROM mindmap_nodes 
-        INNER JOIN mind_maps ON mindmap_nodes.mindMapId = mind_maps.id 
+        SELECT mind_map_nodes.* FROM mind_map_nodes 
+        INNER JOIN mind_maps ON mind_map_nodes.mindMapId = mind_maps.id
         WHERE mind_maps.studySetId = :setId
     """)
     suspend fun getMindMapNodesForSet(setId: Int): List<MindMapNode>
@@ -73,4 +73,10 @@ interface StudySetDao {
 
     @Delete
     suspend fun deleteFlashcard(card: Flashcard)
+
+    @Query("SELECT * FROM flashcard_decks WHERE id = :deckId LIMIT 1")
+    suspend fun getDeckById(deckId: Int): FlashcardDeck?
+
+    @Query("UPDATE flashcard_decks SET progress = :progress WHERE id = :deckId")
+    suspend fun updateDeckProgress(deckId: Int, progress: Int)
 }

@@ -15,6 +15,7 @@ import com.myApp.vizualearnfinal.data.database.AppDatabase
 import com.myApp.vizualearnfinal.data.model.Flashcard
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
 import com.myApp.vizualearnfinal.screens.editdeck.EditDeckActivity
+import com.myApp.vizualearnfinal.utils.getTextView
 import com.myApp.vizualearnfinal.utils.toast
 
 class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
@@ -36,7 +37,8 @@ class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
         currentDeckId = intent.getIntExtra("EXTRA_DECK_ID", -1)
 
         val dao = AppDatabase.getDatabase(this).studySetDao()
-        presenter = FlashCardViewPresenter(this, FlashCardViewModel(StudySetRepository(dao)))
+        // Pass 'this' as the first argument to the Model
+        presenter = FlashCardViewPresenter(this, FlashCardViewModel(this, StudySetRepository(dao)))
 
         // Initialize UI Elements
         linearlayoutFlashcardContainer = findViewById(R.id.linearlayoutFlashcardContainer)
@@ -69,6 +71,12 @@ class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
         findViewById<TextView>(R.id.textviewEditThisCard).setOnClickListener {
             presenter.onEditCardClicked()
         }
+
+
+        // When done is pressed
+        getTextView(R.id.textviewDone)?.setOnClickListener {
+            presenter.onDoneClicked()
+        }
     }
 
     // Refresh the data every time the screen becomes visible (e.g., coming back from Edit screen)
@@ -93,11 +101,7 @@ class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
             linearlayoutFlashcardContainer.setBackgroundResource(R.drawable.bg_flashcard_answer)
             textviewCardType.text = "ANSWER"
             textviewCardType.setTextColor(Color.parseColor("#A5D6A7")) // light green label
-            textviewCardContent.text = if (!card.contextText.isNullOrEmpty()) {
-                "${card.backText}\n\nContext:\n${card.contextText}"
-            } else {
-                card.backText
-            }
+            textviewCardContent.text = card.backText
         }
     }
 

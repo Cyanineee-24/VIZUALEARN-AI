@@ -2,10 +2,12 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
-    <!-- Pulling Cytoscape directly from the internet -->
-    <script src="cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+
     <style>
-        body { margin: 0; padding: 0; background-color: #F8F9FA; font-family: sans-serif; }
+        body { margin: 0; padding: 0; background-color: #1E2128; }
         #cy { width: 100vw; height: 100vh; display: block; }
     </style>
 </head>
@@ -18,61 +20,136 @@
             {
                 selector: 'node',
                 style: {
-                    'background-color': '#A06CD5',
+                    'background-color': '#2A3439',
                     'label': 'data(label)',
-                    'color': '#fff',
+                    'color': '#E8EAED',
                     'text-valign': 'center',
                     'text-halign': 'center',
                     'font-size': '12px',
+                    'font-family': 'sans-serif',
                     'width': 'label',
                     'height': 'label',
-                    'padding': '16px',
-                    'shape': 'round-rectangle'
+                    'padding': '14px',
+                    'shape': 'round-rectangle',
+                    'border-width': '1px',
+                    'border-color': '#3E4A52',
+                    'transition-property': 'opacity',
+                    'transition-duration': '300ms'
                 }
             },
             {
                 selector: 'node[id = "root"]',
                 style: {
-                    'background-color': '#FFD700',
-                    'color': '#000',
-                    'font-size': '16px',
-                    'font-weight': 'bold'
+                    'background-color': '#5C6B8D',
+                    'color': '#FFFFFF',
+                    'font-weight': 'bold',
+                    'font-size': '14px',
+                    'border-width': '0px'
+                }
+            },
+            {
+                // Visual cue that a node has hidden children
+                selector: '.has-hidden-children',
+                style: {
+                    'border-width': '2px',
+                    'border-color': '#8AB4F8' // Blue ring indicates it can expand
+                }
+            },
+            {
+                selector: '.hidden',
+                style: {
+                    'display': 'none' // Hides collapsed nodes/edges
                 }
             },
             {
                 selector: 'edge',
                 style: {
-                    'width': 3,
-                    'line-color': '#CCCCCC',
-                    'target-arrow-color': '#CCCCCC',
+                    'width': 2,
+                    'line-color': '#6E859E',
+                    'target-arrow-color': '#6E859E',
                     'target-arrow-shape': 'triangle',
-                    'curve-style': 'bezier'
+                    'curve-style': 'bezier',
+                    'arrow-scale': 0.8
                 }
             }
-        ],
-        layout: {
-            name: 'cose',
-            padding: 30,
-            animate: true
-        }
+        ]
     });
 
-    // Your Kotlin code will call this function to inject the database nodes!
-    function loadGraph(elementsJson) {
-            cy.elements().remove();
-            cy.add(JSON.parse(elementsJson));
-            cy.layout({ name: 'cose', padding: 50 }).run();
+    // Helper to animate map gracefully when nodes appear/disappear
+    function runLayout() {
+        cy.layout({
+            name: 'dagre',
+            rankDir: 'LR',
+            spacingFactor: 1.1,
+            nodeSep: 40,
+            rankSep: 60,
+            animate: true,
+            animationDuration: 400,
+            fit: true,
+            padding: 30
+        }).run();
+    }
 
-            // NEW: Listen for taps on nodes!
-            cy.on('tap', 'node', function(evt){
-                var node = evt.target;
-                // Don't do anything if they click the central "Root" title node
-                if(node.id() !== 'root') {
-                    // Send the data back to Android!
-                    Android.onNodeTapped(node.data('label'), node.data('description'));
+    function loadGraph(elementsJson) {
+        cy.elements().remove();
+        cy.add(JSON.parse(elementsJson)); // Load data from Kotlin
+
+        // Initial setup: Collapse everything except the root's direct children
+        var rootNode = cy.getElementById('root');
+        if (rootNode.length > 0) {
+            rootNode.outgoers().nodes().forEach(function(child) {
+                var grandChildren = child.successors();
+                if (grandChildren.length > 0) {
+                    grandChildren.addClass('hidden');
+                    child.addClass('has-hidden-children');
                 }
             });
         }
+
+        runLayout();
+
+        // THE INTERACTIVE CLICK LISTENER
+        cy.on('tap', 'node', function(evt) {
+            var node = evt.target;
+
+            // 1. Send description to Kotlin UI
+            if (window.Android && window.Android.onNodeTapped) {
+                Android.onNodeTapped(node.data('label'), node.data('description'));
+            }
+
+            // 2. Expand/Collapse Logic
+            var childrenEdgesAndNodes = node.outgoers();
+            if (childrenEdgesAndNodes.length === 0) return; // Leaf node
+
+            if (node.hasClass('has-hidden-children')) {
+                // EXPAND
+                node.removeClass('has-hidden-children');
+                childrenEdgesAndNodes.removeClass('hidden');
+            } else {
+                // COLLAPSE (Hides all descendants recursively)
+                node.addClass('has-hidden-children');
+                node.successors().addClass('hidden');
+
+                // Add indicator back to children that were collapsed
+                childrenEdgesAndNodes.nodes().forEach(n => {
+                    if (n.outgoers().length > 0) n.addClass('has-hidden-children');
+                });
+            }
+            runLayout(); // Redraw map
+        });
+
+        cy.userPanningEnabled(true);
+        cy.userZoomingEnabled(true);
+    }
+
+    // Export webview into pdf
+    function exportToAndroid() {
+        // Generates a high-res PNG with the dark background
+        var b64 = cy.png({ bg: '#1E2128', full: true, scale: 2 });
+        if (window.Android && window.Android.saveImage) {
+            window.Android.saveImage(b64);
+        }
+    }
 </script>
 </body>
 </html>

@@ -5,8 +5,13 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
+import com.myApp.vizualearnfinal.data.repository.StudySetRepository
+import com.myApp.vizualearnfinal.utils.DeckProgressManager
 
-class ProgressModel(context: Context) {
+class ProgressModel(
+    private val context: Context,
+    private val repository: StudySetRepository // <--- ADDED REPOSITORY HERE
+) {
     private val prefs: SharedPreferences = context.getSharedPreferences("vizualearn_progress", Context.MODE_PRIVATE)
 
     fun getCurrentStreak(): Int = prefs.getInt("CURRENT_STREAK", 0)
@@ -37,7 +42,7 @@ class ProgressModel(context: Context) {
             currentStreak += 1
             totalDays += 1
         } else {
-            // They missed a day (or more). Streak is broken. 😭
+            // They missed a day (or more). Streak is broken.
             currentStreak = 1
             totalDays += 1 // We still count it as a total day studied
         }
@@ -53,5 +58,48 @@ class ProgressModel(context: Context) {
         }
 
         editor.apply()
+    }
+
+    // --- EVERYTHING BELOW MUST BE INSIDE THE CLASS ---
+
+    // Create a data class to hold the calculated info
+    data class SubjectMastery(
+        val subjectName: String,
+        val iconResName: String,
+        val learned: Int,
+        val total: Int
+    ) {
+        val percent get() = if (total > 0) (learned * 100) / total else 0
+    }
+
+    // Add this to calculate the data for the UI
+    suspend fun getMasteryData(): Pair<Int, List<SubjectMastery>> {
+        val sets = repository.getAllSets()
+        var totalLearnedAcrossApp = 0
+        var totalCardsAcrossApp = 0
+        val subjectList = mutableListOf<SubjectMastery>()
+
+        for (set in sets) {
+            val decks = repository.getDecksForSet(set.id)
+            var setLearned = 0
+            var setTotal = 0
+
+            for (deck in decks) {
+                val cards = repository.getFlashcardsForDeck(deck.id)
+                val learned = DeckProgressManager.getLearnedIds(context, deck.id).size
+                setLearned += learned
+                setTotal += cards.size
+            }
+
+            totalLearnedAcrossApp += setLearned
+            totalCardsAcrossApp += setTotal
+
+            if (setTotal > 0) {
+                subjectList.add(SubjectMastery(set.subject, set.iconResName, setLearned, setTotal))
+            }
+        }
+
+        val overallPct = if (totalCardsAcrossApp > 0) (totalLearnedAcrossApp * 100) / totalCardsAcrossApp else 0
+        return Pair(overallPct, subjectList)
     }
 }

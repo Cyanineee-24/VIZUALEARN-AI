@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp">
+
+    <ImageView
+        android:id="@+id/imageviewIcon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:background="@drawable/bg_icon_light_green"
+        android:padding="6dp"
+        android:src="@drawable/ic_dna" />
+
+    <TextView
+        android:id="@+id/textviewSubjectTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_toEndOf="@id/imageviewIcon"
+        android:textColor="#1A1A1A"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textviewSubjectCards"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textviewSubjectTitle"
+        android:layout_marginStart="12dp"
+        android:layout_toEndOf="@id/imageviewIcon"
+        android:textColor="#A0A0A0"
+        android:textSize="10sp" />
+
+    <TextView
+        android:id="@+id/textviewSubjectPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:textColor="#00897B"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/linearlayoutProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_below="@id/imageviewIcon"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_progress_track"
+        android:orientation="horizontal"
+        android:weightSum="100">
+
+        <View
+            android:id="@+id/viewProgressFill"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:background="#00897B" />
+    </LinearLayout>
+</RelativeLayout>

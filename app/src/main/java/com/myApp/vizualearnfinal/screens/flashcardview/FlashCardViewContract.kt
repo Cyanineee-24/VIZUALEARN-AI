@@ -22,7 +22,7 @@ interface FlashCardViewContract {
         fun onPrevClicked()
         fun onActionClicked(action: String)
         fun onModeSelected(mode: String)
-
+        fun onDoneClicked()
         fun onReviewEditModeClicked()
 
         // Edit Actions RESTORED

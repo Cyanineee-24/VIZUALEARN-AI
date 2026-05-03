@@ -41,8 +41,27 @@ class Step3Presenter(
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // 1. Build the base text instructions - UPGRADED TO NOTEBOOK LM "BRAIN"
                 val baseInstructions = if (type == "mindmap") {
-                    "Extract key concepts from the provided content to create a Mind Map. Return ONLY a valid JSON array of objects, where each object has a 'title' (string) and 'description' (string). No markdown, no introduction, just the raw JSON array."
+                    """
+                    Extract key concepts from the provided content to create a highly organized Mind Map. 
+                    Act as an expert taxonomist. Organize the information strictly into:
+                    1. A single Core Topic
+                    2. Major Branches (Sub-topics)
+                    3. Leaves (Supporting details)
+                    
+                    Return ONLY a valid JSON array of objects. Each object MUST have exactly these keys:
+                    - "id": A short, unique string identifier (e.g., "node_1").
+                    - "parentId": The id of the parent node this belongs to. 
+                    - "title": A 1-to-3 word title.
+                    - "description": A 1-sentence explanation.
+                    
+                    CRITICAL RULES:
+                    - The main central topic MUST have the exact "id": "root", and its "parentId" MUST be "null".
+                    - Every other node MUST have a "parentId" that exactly matches an "id" of another node.
+                    - Do not exceed 3 levels of depth to avoid clutter.
+                    - Return raw JSON only, no markdown formatting.
+                    """.trimIndent()
                 } else {
                     "Read the provided content and create high-quality educational flashcards. Return ONLY a valid JSON array of objects, where each object has a 'frontText' (string) and 'backText' (string). No markdown, no introduction, just the raw JSON array."
                 }

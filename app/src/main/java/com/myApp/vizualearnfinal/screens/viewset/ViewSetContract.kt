@@ -1,17 +1,20 @@
 package com.myApp.vizualearnfinal.screens.viewset
 
-import com.myApp.vizualearnfinal.data.model.Flashcard
-import com.myApp.vizualearnfinal.data.model.MindMapNode
+import com.myApp.vizualearnfinal.utils.DeckItem
 
-class ViewSetContract {
+interface ViewSetContract {
     interface View {
-        fun displaySetHeader(setName: String, subject: String)
-        fun displayFlashcards(cards: List<Flashcard>)
-        fun displayMindMapNodes(nodes: List<MindMapNode>)
+        fun displaySetHeader(setName: String, subtitle: String)
+        fun displayDecks(flashcardDecks: List<DeckItem>, mindMapDecks: List<DeckItem>)
+        fun getIconResourceId(iconName: String): Int // Let the View handle Android Resources
         fun navigateBack()
+        fun navigateToStep1(setId: Int, type: String)
+        fun showError(message: String)
     }
 
     interface Presenter {
         fun loadSetData(setId: Int)
+        fun onAddFlashcardClicked()
+        fun onAddMindMapClicked()
     }
 }

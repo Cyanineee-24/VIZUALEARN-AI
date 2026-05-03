@@ -4,6 +4,7 @@ import com.myApp.vizualearnfinal.data.model.Flashcard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+ import kotlinx.coroutines.withContext
 
 class FlashCardViewPresenter(
     private val view: FlashCardViewContract.View,
@@ -12,145 +13,181 @@ class FlashCardViewPresenter(
 
     private var currentMode: String = "Study Mode"
     private var originalCards: List<Flashcard> = emptyList()
-    private var displayedCards: List<Flashcard> = emptyList()
-    private var currentIndex: Int = 0
+
+    // The active queue (cards still to be learned)
+    private var studyQueue: ArrayDeque<Flashcard> = ArrayDeque()
+
+    // Cards that have been "Got It!"
+    private val learnedCardIds = mutableSetOf<Int>()
+
+    // For peeking (prev/next) without affecting queue
+    private var peekIndex: Int = 0
+    private var peekMode: Boolean = false  // true when user is browsing with arrows
     private var isShowingFront: Boolean = true
-    private val learnedCards = mutableSetOf<Int>()
+
+    private var currentDeckId: Int = -1
 
     override fun loadDeck(deckId: Int) {
-        if (deckId == -1) {
+        currentDeckId = deckId
+        if (deckId == -1) { 
             view.showMessage("Error loading deck")
             view.finishActivity()
-            return
+            return 
         }
 
         CoroutineScope(Dispatchers.Main).launch {
+            // 1. Load cards
             originalCards = model.getCardsForDeck(deckId)
-
-            if (originalCards.isEmpty()) {
+            
+            if (originalCards.isEmpty()) { 
                 view.showMessage("No cards in this deck")
                 view.finishActivity()
-                return@launch
+                return@launch 
             }
 
-            displayedCards = originalCards.toList()
-            view.setHeaders("Deck View", "Study Set", originalCards.size)
-            updateCardDisplay()
-            view.updateProgressUI(learnedCards.size, displayedCards.size)
+            // 2. Load Deck and Study Set details (Suspended calls moved inside coroutine)
+            val deck = model.getDeckById(deckId)
+            val deckTitle = deck?.deckName ?: "Deck View"
+            
+            val setTitle = if (deck != null) {
+                model.getParentStudySet(deck.studySetId)?.setName ?: "Study Set"
+            } else {
+                "Study Set"
+            }
+
+            // 3. Update UI
+            view.setHeaders(deckTitle, setTitle, originalCards.size)
+            resetStudySession()
         }
+    }
+
+    private fun resetStudySession() {
+        studyQueue = ArrayDeque(originalCards)
+        peekIndex = 0
+        peekMode = false
+        isShowingFront = true
+        learnedCardIds.clear()
+
+        view.updateProgressUI(0, originalCards.size)
+        showCurrentCard()
+    }
+
+    private fun showCurrentCard() {
+        if (studyQueue.isEmpty()) {
+            view.showMessage("🎉 You've learned all cards!")
+            return
+        }
+        val card = if (peekMode) studyQueue[peekIndex] else studyQueue.first()
+        view.displayCard(card, isShowingFront,
+            learnedCardIds.size, originalCards.size)
     }
 
     override fun onCardTapped() {
         isShowingFront = !isShowingFront
-        updateCardDisplay()
+        showCurrentCard()
     }
 
     override fun onNextClicked() {
-        if (currentIndex < displayedCards.size - 1) {
-            currentIndex++
-            isShowingFront = true
-            updateCardDisplay()
-        } else {
-            view.showMessage("You've reached the end of the deck!")
-        }
+        if (studyQueue.isEmpty()) return
+        peekMode = true
+        if (peekIndex < studyQueue.size - 1) peekIndex++
+        isShowingFront = true
+        showCurrentCard()
     }
 
     override fun onPrevClicked() {
-        if (currentIndex > 0) {
-            currentIndex--
-            isShowingFront = true
-            updateCardDisplay()
-        }
+        if (studyQueue.isEmpty()) return
+        peekMode = true
+        if (peekIndex > 0) peekIndex--
+        isShowingFront = true
+        showCurrentCard()
     }
 
     override fun onActionClicked(action: String) {
+        if (studyQueue.isEmpty()) return
+
+        // If peeking, bring focus back to front of queue first
+        peekMode = false
+        peekIndex = 0
+        isShowingFront = true
+
         when (action) {
             "CORRECT" -> {
-                learnedCards.add(displayedCards[currentIndex].id)
-                view.updateProgressUI(learnedCards.size, displayedCards.size)
-                onNextClicked()
+                val card = studyQueue.removeFirst()
+                learnedCardIds.add(card.id)
+                view.updateProgressUI(learnedCardIds.size, originalCards.size)
+
+                if (studyQueue.isEmpty() && learnedCardIds.size == originalCards.size) {
+                    view.showMessage("🎉 Deck complete! All cards learned!")
+                } else {
+                    showCurrentCard()
+                }
             }
             "WRONG", "SKIP" -> {
-                onNextClicked()
+                // Move current card to end of queue
+                val card = studyQueue.removeFirst()
+                studyQueue.addLast(card)
+                showCurrentCard()
             }
         }
     }
 
     override fun onModeSelected(mode: String) {
-        if (currentMode == mode) {
-            view.showMessage("You are already on $mode")
-            return
+        if (currentMode == mode) { 
+            view.showMessage("Already on $mode")
+            return 
         }
-
         currentMode = mode
-        currentIndex = 0
+
+        val remainingCards = originalCards.filter { it.id !in learnedCardIds }
+        studyQueue = ArrayDeque(if (mode == "Quiz Mode++") remainingCards.shuffled() else remainingCards)
+        peekIndex = 0
+        peekMode = false
         isShowingFront = true
-        learnedCards.clear()
 
-        displayedCards = if (mode == "Quiz Mode++") {
-            originalCards.shuffled()
-        } else {
-            originalCards.toList()
-        }
-
-        view.updateProgressUI(0, displayedCards.size)
-        updateCardDisplay()
+        view.updateProgressUI(learnedCardIds.size, originalCards.size)
+        showCurrentCard()
         view.showMessage("Switched to $mode")
     }
 
-    override fun onReviewEditModeClicked() {
-        val currentDeckId = originalCards.firstOrNull()?.deckId ?: -1
-        if (currentDeckId != -1) {
-            view.navigateToEditDeck(currentDeckId)
-        } else {
-            view.showMessage("Error: Cannot find Deck ID.")
-        }
+    override fun onDoneClicked() {
+        // The ArrayDeque and DeckProgressManager have already been tracking and saving
+        // the learnedCardIds seamlessly behind the scenes. We just close the view!
+        view.finishActivity()
     }
 
-    // --- RESTORED SINGLE CARD EDIT LOGIC ---
+    override fun onReviewEditModeClicked() {
+        val deckId = originalCards.firstOrNull()?.deckId ?: -1
+        if (deckId != -1) view.navigateToEditDeck(deckId)
+        else view.showMessage("Error: Cannot find Deck ID.")
+    }
 
     override fun onEditCardClicked() {
-        if (displayedCards.isNotEmpty()) {
-            val currentCard = displayedCards[currentIndex]
-            view.showEditCardUI(currentCard)
+        if (studyQueue.isNotEmpty()) {
+            val card = if (peekMode) studyQueue[peekIndex] else studyQueue.first()
+            view.showEditCardUI(card)
         }
     }
 
     override fun saveEditedCard(cardId: Int, newFront: String, newBack: String, newContext: String?) {
-        val cardIndex = originalCards.indexOfFirst { it.id == cardId }
+        CoroutineScope(Dispatchers.Main).launch {
+            val mutableOriginal = originalCards.toMutableList()
+            val idx = mutableOriginal.indexOfFirst { it.id == cardId }
+            if (idx != -1) {
+                val updated = mutableOriginal[idx].copy(frontText = newFront, backText = newBack, contextText = newContext)
+                model.updateFlashcard(updated)
+                mutableOriginal[idx] = updated
+                originalCards = mutableOriginal
 
-        if (cardIndex != -1) {
-            val updatedCard = originalCards[cardIndex].copy(
-                frontText = newFront,
-                backText = newBack,
-                contextText = newContext
-            )
-
-            // Save to DB in background, then update UI
-            CoroutineScope(Dispatchers.Main).launch {
-                model.updateFlashcard(updatedCard) // Update Database
-
-                // Update Local State
-                val mutableCards = originalCards.toMutableList()
-                mutableCards[cardIndex] = updatedCard
-                originalCards = mutableCards.toList()
-
-                // Re-sync displayed cards
-                displayedCards = if (currentMode == "Quiz Mode++") {
-                    displayedCards.map { if (it.id == cardId) updatedCard else it }
-                } else {
-                    originalCards.toList()
+                // Also update in queue
+                val queueIdx = studyQueue.indexOfFirst { it.id == cardId }
+                if (queueIdx != -1) {
+                    studyQueue[queueIdx] = updated
                 }
 
-                view.showMessage("Card updated successfully!")
-                updateCardDisplay()
+                view.showMessage("Card updated!")
+                showCurrentCard()
             }
-        }
-    }
-
-    private fun updateCardDisplay() {
-        if (displayedCards.isNotEmpty()) {
-            view.displayCard(displayedCards[currentIndex], isShowingFront, currentIndex, displayedCards.size)
         }
     }
 }

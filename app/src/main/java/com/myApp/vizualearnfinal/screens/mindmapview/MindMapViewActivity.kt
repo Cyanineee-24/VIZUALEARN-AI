@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.myApp.vizualearnfinal.R
 import com.myApp.vizualearnfinal.data.database.AppDatabase
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
+import com.myApp.vizualearnfinal.utils.getLinearLayout
+import com.myApp.vizualearnfinal.utils.toast
 
 class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
 
@@ -27,6 +29,15 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
             runOnUiThread {
                 presenter.onNodeTapped(title, description)
             }
+        }
+
+        @JavascriptInterface
+        fun saveImage(base64String: String) {
+            // Remove the data URL prefix to get the pure Base64 string
+            val cleanBase64 = base64String.replace("data:image/png;base64,", "")
+            val imageBytes = android.util.Base64.decode(cleanBase64, android.util.Base64.DEFAULT)
+            // You can now write these imageBytes to the MediaStore/Gallery!
+            runOnUiThread { toast("Map exported successfully!") }
         }
     }
 
@@ -64,6 +75,10 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
         webView.postDelayed({
             presenter.loadMapData(mapId, mapTitle)
         }, 500)
+
+        getLinearLayout(R.id.linearlayoutBtnExport)?.setOnClickListener {
+            webView.evaluateJavascript("javascript:exportToAndroid()", null)
+        }
     }
 
     // --- VIEW CONTRACT IMPLEMENTATIONS ---

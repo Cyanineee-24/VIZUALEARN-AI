@@ -55,4 +55,10 @@ class StudySetRepository(private val dao: StudySetDao) {
     suspend fun deleteFlashcard(card: Flashcard) {
         dao.deleteFlashcard(card)
     }
+
+    suspend fun getDeckById(deckId: Int): FlashcardDeck? = dao.getDeckById(deckId)
+
+    suspend fun updateDeckProgress(deckId: Int, progress: Int) {
+        dao.updateDeckProgress(deckId, progress)
+    }
 }

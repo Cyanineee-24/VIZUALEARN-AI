@@ -111,35 +111,32 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
         getLinearLayout(R.id.linearlayoutFlashcardsVariant)?.visibility = View.GONE
         getLinearLayout(R.id.linearlayoutMindMapVariant)?.visibility = View.VISIBLE
 
-        // Build Cytoscape JSON
         val elementsArray = JSONArray()
 
-        elementsArray.put(JSONObject().apply {
-            put("data", JSONObject().apply {
-                put("id", "root")
-                put("label", setName)
-            })
-        })
+        nodes.forEach { node ->
+            // 1. Add the Node (Force the root node to use the User's Set Name)
+            val nodeTitle = if (node.nodeId == "root") setName else node.title
 
-        nodes.forEachIndexed { index, node ->
-            val nodeId = "node_$index"
             elementsArray.put(JSONObject().apply {
                 put("data", JSONObject().apply {
-                    put("id", nodeId)
-                    put("label", node.title)
+                    put("id", node.nodeId)
+                    put("label", nodeTitle)
                     put("description", node.description)
                 })
             })
-            elementsArray.put(JSONObject().apply {
-                put("data", JSONObject().apply {
-                    put("id", "edge_$index")
-                    put("source", "root")
-                    put("target", nodeId)
+
+            // 2. Add the Edge (Connecting lines based on hierarchy!)
+            if (node.parentId != "null" && node.parentId.isNotEmpty() && node.nodeId != "root") {
+                elementsArray.put(JSONObject().apply {
+                    put("data", JSONObject().apply {
+                        put("id", "edge_${node.nodeId}")
+                        put("source", node.parentId)
+                        put("target", node.nodeId)
+                    })
                 })
-            })
+            }
         }
 
-        // Escape special characters so JS doesn't break
         val jsonString = elementsArray.toString()
             .replace("\\", "\\\\")
             .replace("'", "\\'")
@@ -150,13 +147,11 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
 
-        // Fix: Let WebView handle its own touch events inside ScrollView
         webView.setOnTouchListener { v, _ ->
             v.parent.requestDisallowInterceptTouchEvent(true)
             false
         }
 
-        // Wire up node tap → update the details card below
         webView.addJavascriptInterface(object : Any() {
             @android.webkit.JavascriptInterface
             fun onNodeTapped(title: String, description: String) {
@@ -172,7 +167,6 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
                 webView.evaluateJavascript("javascript:loadGraph('$jsonString')", null)
             }
         }
-
         webView.loadUrl("file:///android_asset/mindmap.html")
     }
 
