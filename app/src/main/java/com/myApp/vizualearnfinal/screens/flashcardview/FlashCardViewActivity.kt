@@ -1,5 +1,7 @@
 package com.myApp.vizualearnfinal.screens.flashcardview
 
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageView
@@ -12,6 +14,7 @@ import com.myApp.vizualearnfinal.R
 import com.myApp.vizualearnfinal.data.database.AppDatabase
 import com.myApp.vizualearnfinal.data.model.Flashcard
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
+import com.myApp.vizualearnfinal.screens.editdeck.EditDeckActivity
 import com.myApp.vizualearnfinal.utils.toast
 
 class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
@@ -23,11 +26,14 @@ class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
     private lateinit var textviewCardType: TextView
     private lateinit var textviewCardContent: TextView
 
+    // Track the deck ID for when we return from the Edit screen
+    private var currentDeckId: Int = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_flash_card_view)
 
-        val deckId = intent.getIntExtra("EXTRA_DECK_ID", -1)
+        currentDeckId = intent.getIntExtra("EXTRA_DECK_ID", -1)
 
         val dao = AppDatabase.getDatabase(this).studySetDao()
         presenter = FlashCardViewPresenter(this, FlashCardViewModel(StudySetRepository(dao)))
@@ -50,16 +56,25 @@ class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
         findViewById<TextView>(R.id.textviewWrong).setOnClickListener { presenter.onActionClicked("WRONG") }
         findViewById<TextView>(R.id.textviewCorrect).setOnClickListener { presenter.onActionClicked("CORRECT") }
 
-        // Study Modes
-        findViewById<LinearLayout>(R.id.linearlayoutStudyMode).setOnClickListener { presenter.onModeSelected("Study Mode") }
-        findViewById<LinearLayout>(R.id.linearlayoutQuizMode).setOnClickListener { presenter.onModeSelected("Quiz Mode++") }
-        findViewById<LinearLayout>(R.id.linearlayoutReviewMissed).setOnClickListener { presenter.onModeSelected("Review Missed") }
+        // Open the new Bulk Edit/Review Screen
+        findViewById<LinearLayout>(R.id.linearlayoutReviewEditMode)?.setOnClickListener {
+            presenter.onReviewEditModeClicked()
+        }
+
+        findViewById<LinearLayout>(R.id.linearlayoutQuizMode).setOnClickListener {
+            presenter.onModeSelected("Quiz Mode++")
+        }
 
         // Edit Card
-        findViewById<TextView>(R.id.textviewEditThisCard).setOnClickListener { presenter.onEditCardClicked() }
+        findViewById<TextView>(R.id.textviewEditThisCard).setOnClickListener {
+            presenter.onEditCardClicked()
+        }
+    }
 
-        // Load data
-        presenter.loadDeck(deckId)
+    // Refresh the data every time the screen becomes visible (e.g., coming back from Edit screen)
+    override fun onResume() {
+        super.onResume()
+        presenter.loadDeck(currentDeckId)
     }
 
     override fun setHeaders(deckTitle: String, parentSetTitle: String, totalCards: Int) {
@@ -70,18 +85,18 @@ class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
 
     override fun displayCard(card: Flashcard, isShowingFront: Boolean, currentIndex: Int, totalCards: Int) {
         if (isShowingFront) {
-            linearlayoutFlashcardContainer.setBackgroundResource(R.drawable.bg_box_q_red)
+            linearlayoutFlashcardContainer.setBackgroundResource(R.drawable.bg_flashcard_question)
             textviewCardType.text = "QUESTION"
+            textviewCardType.setTextColor(Color.parseColor("#FFD700")) // gold label
             textviewCardContent.text = card.frontText
         } else {
-            linearlayoutFlashcardContainer.setBackgroundResource(R.drawable.bg_box_a_green)
+            linearlayoutFlashcardContainer.setBackgroundResource(R.drawable.bg_flashcard_answer)
             textviewCardType.text = "ANSWER"
-
-            // If the card has extra context, append it to the back of the card
-            if (!card.contextText.isNullOrEmpty()) {
-                textviewCardContent.text = "${card.backText}\n\nContext:\n${card.contextText}"
+            textviewCardType.setTextColor(Color.parseColor("#A5D6A7")) // light green label
+            textviewCardContent.text = if (!card.contextText.isNullOrEmpty()) {
+                "${card.backText}\n\nContext:\n${card.contextText}"
             } else {
-                textviewCardContent.text = card.backText
+                card.backText
             }
         }
     }
@@ -143,5 +158,11 @@ class FlashCardViewActivity : AppCompatActivity(), FlashCardViewContract.View {
 
     override fun finishActivity() {
         finish()
+    }
+
+    override fun navigateToEditDeck(deckId: Int) {
+        val intent = Intent(this, EditDeckActivity::class.java)
+        intent.putExtra("EXTRA_DECK_ID", deckId)
+        startActivity(intent)
     }
 }

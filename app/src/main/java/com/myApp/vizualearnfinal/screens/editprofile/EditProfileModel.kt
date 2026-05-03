@@ -15,9 +15,8 @@ class EditProfileModel(private val app: CustomApplication) {
                 lastName = last,
                 email = email,
                 school = school,
-                course = course
-                // Note: If your User data class in data/User.kt doesn't have an 'address' field yet,
-                // you will need to add it there to save this specific field!
+                course = course,
+                address = address  // ← ADD THIS LINE
             )
             app.loginUser = updatedUser
             app.registeredUser = updatedUser // Update the "database" too

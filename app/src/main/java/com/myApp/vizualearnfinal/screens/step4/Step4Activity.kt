@@ -18,6 +18,8 @@ import com.myApp.vizualearnfinal.utils.*
 import android.annotation.SuppressLint
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.EditText
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -197,5 +199,38 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
 
         // Example of what would happen when they hit "Save" on that dialog:
         // presenter.onManualContextSaved(index, "User typed this context manually.")
+    }
+
+    override fun showEditCardDialog(index: Int, card: Flashcard) {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.layout_bottom_sheet_edit_card, null)
+        bottomSheetDialog.setContentView(view)
+
+        val edittextEditFront = view.findViewById<EditText>(R.id.edittextEditFront)
+        val edittextEditBack = view.findViewById<EditText>(R.id.edittextEditBack)
+        val edittextEditContext = view.findViewById<EditText>(R.id.edittextEditContext)
+        val textviewSaveCardChanges = view.findViewById<TextView>(R.id.textviewSaveCardChanges)
+        val textviewCancel = view.findViewById<TextView>(R.id.textviewCancel)
+
+        edittextEditFront.setText(card.frontText)
+        edittextEditBack.setText(card.backText)
+        edittextEditContext.setText(card.contextText ?: "")
+
+        textviewCancel.setOnClickListener { bottomSheetDialog.dismiss() }
+
+        textviewSaveCardChanges.setOnClickListener {
+            val newFront = edittextEditFront.text.toString().trim()
+            val newBack = edittextEditBack.text.toString().trim()
+            val newContext = edittextEditContext.text.toString().trim().takeIf { it.isNotEmpty() }
+            if (newFront.isEmpty() || newBack.isEmpty()) {
+                toast("Front and Back cannot be empty!")
+                return@setOnClickListener
+            }
+            presenter.onManualContextSaved(index, newContext ?: "")
+            // Also update front/back — add a new presenter method for this
+            presenter.onEditCardSaved(index, newFront, newBack, newContext)
+            bottomSheetDialog.dismiss()
+        }
+        bottomSheetDialog.show()
     }
 }

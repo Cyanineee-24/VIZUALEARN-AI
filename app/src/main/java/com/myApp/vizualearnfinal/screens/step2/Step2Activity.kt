@@ -9,6 +9,12 @@ import com.myApp.vizualearnfinal.data.database.AppDatabase
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
 import com.myApp.vizualearnfinal.screens.step3.Step3Activity
 import com.myApp.vizualearnfinal.utils.*
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.widget.ImageView
+import android.widget.LinearLayout
+import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.HorizontalScrollView
 
 class Step2Activity : AppCompatActivity(), Step2Contract.View {
 
@@ -16,6 +22,34 @@ class Step2Activity : AppCompatActivity(), Step2Contract.View {
     private var setId: Int = 0
     private var creationType: String = ""
     private var inputMethod: String = ""
+
+    // Store the selected file URIs as strings so they can be passed via Intent
+    private val selectedImageUris = ArrayList<String>()
+    private var selectedPdfUri: String? = null
+
+    // multiple image
+    private val pickMultipleImages = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
+        if (uris.isNotEmpty()) {
+            selectedImageUris.clear()
+            uris.forEach { selectedImageUris.add(it.toString()) } // Save them!
+            toast("${uris.size} images selected!")
+            displayImageThumbnails(uris)
+        } else {
+            toast("No images selected")
+        }
+    }
+
+    // pdf
+    private val pickPdfDocument = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        if (uri != null) {
+            selectedPdfUri = uri.toString() // Save it!
+            val fileName = getFileName(uri)
+            getTextView(R.id.textviewSelectedPdfName)?.text = "Selected: $fileName"
+        } else {
+            toast("No PDF selected")
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +73,58 @@ class Step2Activity : AppCompatActivity(), Step2Contract.View {
         }
 
         getImageView(R.id.imageviewBack)?.setOnClickListener { finish() }
+
+        // Wire up the new buttons we just made in XML!
+        getLinearLayout(R.id.btnOpenGallery)?.setOnClickListener {
+            pickMultipleImages.launch("image/*") // Only show images
+        }
+
+        getLinearLayout(R.id.btnOpenPdfPicker)?.setOnClickListener {
+            pickPdfDocument.launch("application/pdf") // Only show PDFs
+        }
+    }
+
+    // Helper: Draws the little square images on the screen
+    private fun displayImageThumbnails(uris: List<Uri>) {
+        val scrollView = findViewById<HorizontalScrollView>(R.id.scrollviewImageThumbnails)
+        val thumbnailContainer = getLinearLayout(R.id.linearlayoutImageThumbnails)
+
+        thumbnailContainer?.removeAllViews() // Clear old ones
+
+        // Toggle visibility!
+        if (uris.isNotEmpty()) {
+            scrollView?.visibility = View.VISIBLE
+        } else {
+            scrollView?.visibility = View.GONE
+        }
+
+        for (uri in uris) {
+            val imageView = ImageView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(250, 250).apply {
+                    setMargins(0, 0, 16, 0) // Add spacing between images
+                }
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setImageURI(uri) // Load the image!
+                clipToOutline = true
+                setBackgroundResource(R.drawable.bg_rounded_card) // Give it rounded corners
+            }
+            thumbnailContainer?.addView(imageView)
+        }
+    }
+
+    // Helper: Grabs the actual name of the PDF file from Android's file system
+    private fun getFileName(uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index != -1) result = it.getString(index)
+                }
+            }
+        }
+        return result ?: uri.path?.substringAfterLast('/') ?: "Unknown Document"
     }
 
     private fun setupDynamicUI() {
@@ -91,10 +177,13 @@ class Step2Activity : AppCompatActivity(), Step2Contract.View {
         val intent = Intent(this, Step3Activity::class.java).apply {
             putExtra("EXTRA_SET_ID", setId)
             putExtra("EXTRA_TYPE", creationType)
-
-            // ADD THESE TWO LINES: Pass the data forward!
             putExtra("EXTRA_ITEM_NAME", getEditTextStringValue(R.id.edittextName))
             putExtra("EXTRA_NOTES", getEditTextStringValue(R.id.edittextExtractedText))
+
+            // NEW: Pass the file URIs!
+            putStringArrayListExtra("EXTRA_IMAGE_URIS", selectedImageUris)
+            putExtra("EXTRA_PDF_URI", selectedPdfUri)
+            putExtra("EXTRA_INPUT_METHOD", inputMethod) // TEXT, IMAGE, or PDF
         }
         startActivity(intent)
     }

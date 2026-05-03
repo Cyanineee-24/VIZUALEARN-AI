@@ -1,20 +1,19 @@
-package com.myApp.vizualearnfinal.screens.flashcardview
+package com.myApp.vizualearnfinal.screens.editdeck
 
 import com.myApp.vizualearnfinal.data.model.Flashcard
-import com.myApp.vizualearnfinal.data.model.StudySet
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
 
-class FlashCardViewModel(private val repository: StudySetRepository) {
+class EditDeckModel(private val repository: StudySetRepository) {
+
     suspend fun getCardsForDeck(deckId: Int): List<Flashcard> {
         return repository.getFlashcardsForDeck(deckId)
     }
 
-    suspend fun getParentStudySet(setId: Int): StudySet? {
-        return repository.getSetById(setId)
-    }
-
-    // NEW: Allow single card edits to save to DB
     suspend fun updateFlashcard(card: Flashcard) {
         repository.updateFlashcard(card)
+    }
+
+    suspend fun deleteFlashcard(card: Flashcard) {
+        repository.deleteFlashcard(card)
     }
 }

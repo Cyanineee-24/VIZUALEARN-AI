@@ -1,10 +1,13 @@
 package com.myApp.vizualearnfinal.screens.step4
 
+import com.google.ai.client.generativeai.GenerativeModel
 import com.myApp.vizualearnfinal.data.model.Flashcard
 import com.myApp.vizualearnfinal.data.model.MindMapNode
+import com.myApp.vizualearnfinal.utils.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 
 class Step4Presenter(
@@ -18,6 +21,11 @@ class Step4Presenter(
 
     private val parsedFlashcards = mutableListOf<Flashcard>()
     private val parsedNodes = mutableListOf<MindMapNode>()
+
+    private val generativeModel = GenerativeModel(
+        modelName = "gemini-2.5-flash-lite",
+        apiKey = Constants.GEMINI_API_KEY
+    )
 
     override fun initializeView(setId: Int, type: String, itemName: String, jsonResult: String) {
         currentSetId = setId
@@ -77,18 +85,44 @@ class Step4Presenter(
     }
 
     override fun onGenerateContextClicked(index: Int) {
-        // Here you would eventually call the Gemini API again just like in Step 3!
-        // For now, we will simulate a quick AI response.
-        if (index in parsedFlashcards.indices) {
-            val card = parsedFlashcards[index]
-            view.showMessage("Gemini is analyzing context for Card ${index + 1}...")
+        if (index !in parsedFlashcards.indices) return
+        val card = parsedFlashcards[index]
+        view.showMessage("Gemini is analyzing Card ${index + 1}...")
 
-            // Simulate AI updating the context
-            val updatedCard = card.copy(contextText = "AI Generated Context: This is a detailed explanation about ${card.frontText}")
-            parsedFlashcards[index] = updatedCard
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val prompt = """
+                You are an expert educator helping a student deeply understand a concept.
+                
+                The student has this flashcard:
+                QUESTION: ${card.frontText}
+                ANSWER: ${card.backText}
+                
+                Do NOT repeat or rephrase the question and answer. Instead, write a short 2-3 sentence 
+                "deeper context" that answers a follow-up curious question like:
+                - WHY is this true?
+                - HOW does this work at a deeper level?
+                - WHAT makes this concept important or interesting?
+                - How does this connect to the bigger picture?
+                
+                Write it as if you're a curious teacher sparking the student's interest. 
+                Keep it under 60 words. No bullet points. Plain prose only.
+            """.trimIndent()
 
-            // Tell the UI to redraw with the new text
-            view.refreshFlashcardsList(parsedFlashcards)
+                val response = generativeModel.generateContent(prompt)
+                val context = response.text?.trim() ?: "Could not generate context."
+
+                withContext(Dispatchers.Main) {
+                    val updatedCard = card.copy(contextText = context)
+                    parsedFlashcards[index] = updatedCard
+                    view.refreshFlashcardsList(parsedFlashcards)
+                    view.showMessage("Context generated!")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    view.showMessage("Failed to generate context. Check connection.")
+                }
+            }
         }
     }
 
@@ -105,8 +139,21 @@ class Step4Presenter(
     }
 
     override fun onEditCardClicked(index: Int) {
-        // You would typically open a dialog here to edit the Front/Back text
-        view.showMessage("Edit functionality coming soon for Card ${index + 1}")
+        if (index in parsedFlashcards.indices) {
+            view.showEditCardDialog(index, parsedFlashcards[index])
+        }
+    }
+
+    override fun onEditCardSaved(index: Int, newFront: String, newBack: String, newContext: String?) {
+        if (index in parsedFlashcards.indices) {
+            parsedFlashcards[index] = parsedFlashcards[index].copy(
+                frontText = newFront,
+                backText = newBack,
+                contextText = newContext
+            )
+            view.refreshFlashcardsList(parsedFlashcards)
+            view.showMessage("Card updated!")
+        }
     }
 
     override fun onDeleteCardClicked(index: Int) {

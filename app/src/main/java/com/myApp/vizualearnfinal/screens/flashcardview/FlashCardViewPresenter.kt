@@ -11,10 +11,11 @@ class FlashCardViewPresenter(
 ) : FlashCardViewContract.Presenter {
 
     private var currentMode: String = "Study Mode"
-    private var cards: List<Flashcard> = emptyList()
+    private var originalCards: List<Flashcard> = emptyList()
+    private var displayedCards: List<Flashcard> = emptyList()
     private var currentIndex: Int = 0
     private var isShowingFront: Boolean = true
-    private var learnedCount: Int = 0
+    private val learnedCards = mutableSetOf<Int>()
 
     override fun loadDeck(deckId: Int) {
         if (deckId == -1) {
@@ -24,17 +25,18 @@ class FlashCardViewPresenter(
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            cards = model.getCardsForDeck(deckId)
+            originalCards = model.getCardsForDeck(deckId)
 
-            if (cards.isEmpty()) {
+            if (originalCards.isEmpty()) {
                 view.showMessage("No cards in this deck")
                 view.finishActivity()
                 return@launch
             }
 
-            view.setHeaders("Deck View", "Study Set", cards.size)
+            displayedCards = originalCards.toList()
+            view.setHeaders("Deck View", "Study Set", originalCards.size)
             updateCardDisplay()
-            view.updateProgressUI(learnedCount, cards.size)
+            view.updateProgressUI(learnedCards.size, displayedCards.size)
         }
     }
 
@@ -44,7 +46,7 @@ class FlashCardViewPresenter(
     }
 
     override fun onNextClicked() {
-        if (currentIndex < cards.size - 1) {
+        if (currentIndex < displayedCards.size - 1) {
             currentIndex++
             isShowingFront = true
             updateCardDisplay()
@@ -64,8 +66,8 @@ class FlashCardViewPresenter(
     override fun onActionClicked(action: String) {
         when (action) {
             "CORRECT" -> {
-                learnedCount++
-                view.updateProgressUI(learnedCount, cards.size)
+                learnedCards.add(displayedCards[currentIndex].id)
+                view.updateProgressUI(learnedCards.size, displayedCards.size)
                 onNextClicked()
             }
             "WRONG", "SKIP" -> {
@@ -77,41 +79,78 @@ class FlashCardViewPresenter(
     override fun onModeSelected(mode: String) {
         if (currentMode == mode) {
             view.showMessage("You are already on $mode")
+            return
+        }
+
+        currentMode = mode
+        currentIndex = 0
+        isShowingFront = true
+        learnedCards.clear()
+
+        displayedCards = if (mode == "Quiz Mode++") {
+            originalCards.shuffled()
         } else {
-            currentMode = mode
-            view.showMessage("Switched to $mode")
+            originalCards.toList()
+        }
+
+        view.updateProgressUI(0, displayedCards.size)
+        updateCardDisplay()
+        view.showMessage("Switched to $mode")
+    }
+
+    override fun onReviewEditModeClicked() {
+        val currentDeckId = originalCards.firstOrNull()?.deckId ?: -1
+        if (currentDeckId != -1) {
+            view.navigateToEditDeck(currentDeckId)
+        } else {
+            view.showMessage("Error: Cannot find Deck ID.")
         }
     }
 
+    // --- RESTORED SINGLE CARD EDIT LOGIC ---
+
     override fun onEditCardClicked() {
-        if (cards.isNotEmpty()) {
-            val currentCard = cards[currentIndex]
+        if (displayedCards.isNotEmpty()) {
+            val currentCard = displayedCards[currentIndex]
             view.showEditCardUI(currentCard)
         }
     }
 
     override fun saveEditedCard(cardId: Int, newFront: String, newBack: String, newContext: String?) {
-        val cardIndex = cards.indexOfFirst { it.id == cardId }
+        val cardIndex = originalCards.indexOfFirst { it.id == cardId }
 
         if (cardIndex != -1) {
-            val updatedCard = cards[cardIndex].copy(
+            val updatedCard = originalCards[cardIndex].copy(
                 frontText = newFront,
                 backText = newBack,
                 contextText = newContext
             )
 
-            val mutableCards = cards.toMutableList()
-            mutableCards[cardIndex] = updatedCard
-            cards = mutableCards.toList()
+            // Save to DB in background, then update UI
+            CoroutineScope(Dispatchers.Main).launch {
+                model.updateFlashcard(updatedCard) // Update Database
 
-            view.showMessage("Card updated successfully!")
-            updateCardDisplay()
+                // Update Local State
+                val mutableCards = originalCards.toMutableList()
+                mutableCards[cardIndex] = updatedCard
+                originalCards = mutableCards.toList()
+
+                // Re-sync displayed cards
+                displayedCards = if (currentMode == "Quiz Mode++") {
+                    displayedCards.map { if (it.id == cardId) updatedCard else it }
+                } else {
+                    originalCards.toList()
+                }
+
+                view.showMessage("Card updated successfully!")
+                updateCardDisplay()
+            }
         }
     }
 
     private fun updateCardDisplay() {
-        if (cards.isNotEmpty()) {
-            view.displayCard(cards[currentIndex], isShowingFront, currentIndex, cards.size)
+        if (displayedCards.isNotEmpty()) {
+            view.displayCard(displayedCards[currentIndex], isShowingFront, currentIndex, displayedCards.size)
         }
     }
 }

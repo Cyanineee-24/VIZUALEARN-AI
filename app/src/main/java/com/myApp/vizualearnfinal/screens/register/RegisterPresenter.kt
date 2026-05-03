@@ -36,8 +36,9 @@ class RegisterPresenter(
             return
         }
 
-        // 4. If everything is perfect, save them
-        model.saveNewUser(username, first, last, email, school, course, pass)
+        // 4. ACTUALLY PASS THE ADDRESS TO THE MODEL
+        model.saveNewUser(username, first, last, email, address, school, course, pass)
+
         view.showSuccessMessage()
         view.navigateBackToLogin()
     }

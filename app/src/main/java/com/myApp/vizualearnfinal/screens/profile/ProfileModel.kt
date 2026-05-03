@@ -13,8 +13,7 @@ class ProfileModel(private val app: CustomApplication, private val repository: S
 
     // NEW: Get Address (Fallback to Argao, Cebu if blank for now)
     fun getAddress(): String {
-        val addr = app.loginUser?.address
-        return if (addr.isNullOrEmpty()) "Argao, Cebu" else addr
+        return app.loginUser?.address ?: ""
     }
 
     // NEW: Calculate the real database stats!

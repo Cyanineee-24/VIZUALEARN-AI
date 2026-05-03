@@ -235,9 +235,9 @@
                 android:textColor="#A0A0A0"
                 android:textSize="12sp" />
 
-            <!-- Option 1: Study Mode -->
+            <!-- Option 1: Review/Edit Cards -->
             <LinearLayout
-                android:id="@+id/linearlayoutStudyMode"
+                android:id="@+id/linearlayoutReviewEditMode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -259,8 +259,8 @@
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="Study Mode" android:textColor="#1A1A1A" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Review all cards in order" android:textColor="#A0A0A0" android:textSize="10sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="Review/Edit Cards" android:textColor="#1A1A1A" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Review all cards in edit view with their context" android:textColor="#A0A0A0" android:textSize="10sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -293,34 +293,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Option 3: Review Missed -->
-            <LinearLayout
-                android:id="@+id/linearlayoutReviewMissed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_outline"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
 
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_circle_light_red"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_delete_red" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="Review Missed" android:textColor="#1A1A1A" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Review cards marked as wrong" android:textColor="#A0A0A0" android:textSize="10sp" />
-                </LinearLayout>
-            </LinearLayout>
 
             <!-- Edit This Card Button -->
             <TextView

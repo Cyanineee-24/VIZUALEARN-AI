@@ -13,6 +13,7 @@ class Step4Contract {
         // NEW: Ways to update the UI after making changes
         fun refreshFlashcardsList(cards: List<Flashcard>)
         fun showManualContextInput(index: Int) // Opens a dialog/box to type
+        fun showEditCardDialog(index: Int, card: Flashcard)
     }
 
     interface Presenter {
@@ -25,5 +26,7 @@ class Step4Contract {
         fun onManualContextSaved(index: Int, contextText: String)
         fun onEditCardClicked(index: Int)
         fun onDeleteCardClicked(index: Int)
+
+        fun onEditCardSaved(index: Int, newFront: String, newBack: String, newContext: String?)
     }
 }

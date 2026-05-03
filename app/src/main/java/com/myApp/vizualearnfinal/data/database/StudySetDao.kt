@@ -1,8 +1,10 @@
 package com.myApp.vizualearnfinal.data.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.myApp.vizualearnfinal.data.model.*
 
 @Dao
@@ -65,4 +67,10 @@ interface StudySetDao {
         WHERE mind_maps.studySetId = :setId
     """)
     suspend fun getMindMapNodesForSet(setId: Int): List<MindMapNode>
+
+    @Update
+    suspend fun updateFlashcard(card: Flashcard)
+
+    @Delete
+    suspend fun deleteFlashcard(card: Flashcard)
 }

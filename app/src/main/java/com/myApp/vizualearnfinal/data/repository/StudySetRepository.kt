@@ -47,4 +47,12 @@ class StudySetRepository(private val dao: StudySetDao) {
     suspend fun getMindMapNodesForSet(setId: Int): List<MindMapNode> {
         return dao.getMindMapNodesForSet(setId)
     }
+
+    suspend fun updateFlashcard(card: Flashcard) {
+        dao.updateFlashcard(card)
+    }
+
+    suspend fun deleteFlashcard(card: Flashcard) {
+        dao.deleteFlashcard(card)
+    }
 }
