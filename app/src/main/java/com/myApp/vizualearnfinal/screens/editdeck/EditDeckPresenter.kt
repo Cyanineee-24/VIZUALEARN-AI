@@ -42,6 +42,11 @@ class EditDeckPresenter(
             val cardToDelete = currentCards[index]
             CoroutineScope(Dispatchers.Main).launch {
                 model.deleteFlashcard(cardToDelete)
+
+                // NEW: Remove from learned progress and sync math!
+                model.removeCardFromLearned(currentDeckId, cardToDelete.id)
+                model.syncDeckProgress(currentDeckId)
+
                 currentCards.removeAt(index)
                 view.showCards(currentCards)
                 view.showMessage("Card deleted.")
@@ -136,10 +141,11 @@ class EditDeckPresenter(
         )
 
         CoroutineScope(Dispatchers.Main).launch {
-            // Save to DB immediately so it gets its auto-generated ID!
             model.insertFlashcard(newCard)
 
-            // Reload the deck from the DB so the UI matches reality perfectly
+            // NEW: Adding a card lowers your overall percentage, so sync it!
+            model.syncDeckProgress(currentDeckId)
+
             loadDeck(currentDeckId)
             view.showMessage("New card added!")
         }

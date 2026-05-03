@@ -62,20 +62,13 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <!-- ================= UNIVERSAL FOOTER ================= -->
-    <include layout="@layout/layout_universal_footer"
-        android:id="@+id/universal_footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
-
     <!-- ================= MAIN CONTENT AREA ================= -->
-    <!-- Sits between the header and footer -->
+    <!-- anchor to bottom of screen and sit below header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/relativelayoutStickyHeader"
-        android:layout_above="@id/universal_footer"
+        android:layout_alignParentBottom="true"
         android:orientation="vertical">
 
         <!-- THE CANVAS (Takes up all remaining vertical space) -->
@@ -86,7 +79,7 @@
             android:layout_weight="1"
             android:background="#F5F5F5"/>
 
-        <!-- CONTROLS PANEL (Regenerate, Export, Prompt) -->
+        <!-- CONTROLS PANEL (Export Button) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -94,25 +87,30 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Buttons Row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-
-                <View android:layout_width="12dp" android:layout_height="0dp" />
-
                 <LinearLayout
                     android:id="@+id/linearlayoutBtnExport"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:background="@drawable/bg_btn_generate_purple"
                     android:gravity="center"
                     android:orientation="horizontal">
-                    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_export" app:tint="#FFFFFF"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Export to Images" android:textColor="#FFFFFF" android:textStyle="bold" />
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_export"
+                        app:tint="#FFFFFF"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Export Mind Map"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

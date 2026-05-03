@@ -2,13 +2,13 @@ package com.myApp.vizualearnfinal.screens.editprofile
 
 interface EditProfileContract {
     interface View {
-        fun populateUserData(first: String, last: String, email: String, school: String, course: String, address: String)
+        fun populateFields(first: String, last: String, email: String, school: String, course: String, address: String)
         fun showMessage(message: String)
-        fun navigateBackToProfile()
+        fun finishActivity()
     }
 
     interface Presenter {
-        fun loadCurrentUserData()
+        fun loadCurrentData()
         fun saveChanges(first: String, last: String, email: String, school: String, course: String, address: String)
     }
 }

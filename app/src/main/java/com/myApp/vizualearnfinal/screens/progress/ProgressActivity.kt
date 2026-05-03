@@ -41,10 +41,13 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
         presenter.loadProgressData()
     }
 
+    // UPDATED: Now accepts monthDays and missedDays
     override fun updateStreakUI(
         currentStreak: Int,
         bestStreak: Int,
         totalDays: Int,
+        monthDays: Int,
+        missedDays: Int,
         nextMilestone: Int,
         daysToGo: Int,
         milestoneProgress: Int
@@ -52,7 +55,10 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
         getTextView(R.id.textviewStreakCount)?.text = currentStreak.toString()
         getTextView(R.id.textviewBestNumber)?.text = bestStreak.toString()
         getTextView(R.id.textviewStatTotalNumber)?.text = totalDays.toString()
-        getTextView(R.id.textviewStatMonthNumber)?.text = currentStreak.toString()
+
+        // THE FIX: Wire up the dynamic numbers! No more fake '3' missed days!
+        getTextView(R.id.textviewStatMonthNumber)?.text = monthDays.toString()
+        getTextView(R.id.textviewStatMissedNumber)?.text = missedDays.toString()
 
         getTextView(R.id.textviewMilestoneGoalText)?.text = "$nextMilestone days — $daysToGo to go"
 
@@ -69,10 +75,7 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
         } else null
 
         val todayValue = today?.dayOfWeek?.value ?: 1
-
-        // Find exactly what date Monday was for the current week
         val startOfWeekDate = today?.minusDays((todayValue - 1).toLong())
-
         val startDayOfStreakThisWeek = todayValue - currentStreak + 1
 
         val dayLayouts = arrayOf(R.id.linearlayoutDayMon, R.id.linearlayoutDayTue, R.id.linearlayoutDayWed, R.id.linearlayoutDayThu, R.id.linearlayoutDayFri, R.id.linearlayoutDaySat, R.id.linearlayoutDaySun)
@@ -84,22 +87,17 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
             val textView = getTextView(textViews[i])
             val flameIcon = layout?.getChildAt(0) as? android.widget.ImageView
 
-            // --- INJECT THE EXACT DATE ---
             if (startOfWeekDate != null && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 val dateForSlot = startOfWeekDate.plusDays(i.toLong())
-                // Formats to "May 4"
                 val monthStr = dateForSlot.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
                 textView?.text = "$monthStr ${dateForSlot.dayOfMonth}"
             }
 
-            // --- THE FLAME LOGIC ---
             if (dayNumber in startDayOfStreakThisWeek..todayValue) {
-                // Turn ON (Active Streak Day)
                 flameIcon?.setBackgroundResource(R.drawable.bg_streak_day_active)
                 flameIcon?.setImageResource(R.drawable.ft_streak)
                 textView?.setTextColor(Color.WHITE)
             } else {
-                // Turn OFF (Missed days or Upcoming days)
                 flameIcon?.setBackgroundResource(R.drawable.bg_streak_best_box)
                 flameIcon?.setImageDrawable(null)
                 textView?.setTextColor(Color.parseColor("#555566"))
@@ -110,6 +108,8 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
     override fun navigateBack() {
         finish()
     }
+
+
 
     override fun updateMasteryUI(overallPercent: Int, subjects: List<ProgressModel.SubjectMastery>) {
         // 1. Update the Donut Chart!

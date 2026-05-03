@@ -41,6 +41,17 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
         val jsonResult = intent.getStringExtra("EXTRA_JSON_RESULT") ?: "[]"
         val itemName = intent.getStringExtra("EXTRA_ITEM_NAME") ?: "Untitled"
 
+        // BUG 1 FIX: Only show the "Add" button for Flashcards
+        val addCardBtn = getTextView(R.id.textviewAddCard)
+        if (creationType == "mindmap") {
+            addCardBtn?.visibility = View.GONE
+        } else {
+            addCardBtn?.visibility = View.VISIBLE
+            addCardBtn?.setOnClickListener {
+                presenter.onAddCardClicked()
+            }
+        }
+
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
         presenter = Step4Presenter(this, Step4Model(repository))
@@ -52,9 +63,6 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
         }
         getImageView(R.id.imageviewBack)?.setOnClickListener {
             finish()
-        }
-        getTextView(R.id.textviewAddCard)?.setOnClickListener {
-            presenter.onAddCardClicked()
         }
     }
 
@@ -112,7 +120,6 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
         val elementsArray = JSONArray()
 
         nodes.forEach { node ->
-            // Let the node keep its real title!
             val nodeTitle = node.title
 
             elementsArray.put(JSONObject().apply {
@@ -134,7 +141,6 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
             }
         }
 
-        // BASE64 FIX PREVENTS HTML CRASH FROM LARGE PDF TEXTS
         val rawJsonString = elementsArray.toString()
         val base64Json = android.util.Base64.encodeToString(
             rawJsonString.toByteArray(Charsets.UTF_8),
@@ -187,26 +193,57 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
                             contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
                             resolver.update(it, contentValues, null, null)
                         }
-                        runOnUiThread { toast("Exported mind map to images!") }
+
+                        // THE CRITICAL SUCCESS FEEDBACK
+                        runOnUiThread {
+                            toast("Success! Mind Map saved to Gallery/VizuaLearn")
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    runOnUiThread { toast("Failed to save image.") }
+                    runOnUiThread { toast("Export failed: ${e.localizedMessage}") }
                 }
             }
         }, "Android")
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                // LOAD USING BASE64 JAVASCRIPT FUNCTION
                 webView.evaluateJavascript("javascript:loadGraphBase64('$base64Json')", null)
             }
         }
         webView.loadUrl("file:///android_asset/mindmap.html")
 
-        // WIRE EXPORT BUTTON
+        // BUG 2 FIX: Tailored expansion for your custom HTML logic
         getLinearLayout(R.id.linearlayoutBtnExport)?.setOnClickListener {
-            webView.evaluateJavascript("javascript:exportToAndroid()", null)
+            val expandAndExportJS = """
+                javascript:(function() {
+                    try {
+                        if (typeof cy !== 'undefined') {
+                            // 1. Remove the 'hidden' class from every single node and edge
+                            cy.elements().removeClass('hidden');
+                            
+                            // 2. Remove the blue ring indicator from nodes since they are now expanded
+                            cy.nodes().removeClass('has-hidden-children');
+                            
+                            // 3. Re-run your specific 'dagre' layout so the new nodes aren't clumped
+                            // We use a shorter duration for the export prep
+                            cy.layout({
+                                name: 'dagre',
+                                rankDir: 'LR',
+                                animate: false, // Set to false for instant snap
+                                fit: true,
+                                padding: 30
+                            }).run();
+                        }
+                    } catch(e) {
+                        console.error("Expansion failed: ", e);
+                    }
+                    
+                    // 4. Give the engine a moment to settle, then snap the picture
+                    setTimeout(function() { exportToAndroid(); }, 1000);
+                })()
+            """.trimIndent()
+            webView.evaluateJavascript(expandAndExportJS, null)
         }
     }
 
@@ -241,7 +278,6 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
         val textviewCancel = view.findViewById<TextView>(R.id.textviewCancel)
         val btnGenerateAi = view.findViewById<LinearLayout>(R.id.btnGenerateAiBottomSheet)
 
-        // Change title if we are Adding
         if (card == null) {
             view.findViewById<TextView>(R.id.textviewEditTitle).text = "Add New Card"
         } else {
@@ -250,7 +286,6 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
             edittextEditContext.setText(card.contextText ?: "")
         }
 
-        // Handle the new AI button inside the Bottom Sheet
         btnGenerateAi.setOnClickListener {
             val front = edittextEditFront.text.toString().trim()
             val back = edittextEditBack.text.toString().trim()
@@ -276,7 +311,6 @@ class Step4Activity : AppCompatActivity(), Step4Contract.View {
                 return@setOnClickListener
             }
 
-            // Route to Add or Edit based on if card is null
             if (card == null) {
                 presenter.onAddCardSaved(newFront, newBack, newContext)
             } else {

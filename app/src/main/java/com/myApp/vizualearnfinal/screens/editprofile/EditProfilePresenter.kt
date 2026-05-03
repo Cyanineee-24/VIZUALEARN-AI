@@ -5,29 +5,26 @@ class EditProfilePresenter(
     private val model: EditProfileModel
 ) : EditProfileContract.Presenter {
 
-    override fun loadCurrentUserData() {
-        val user = model.getCurrentUser()
-        if (user != null) {
-            view.populateUserData(
-                first = user.firstName,
-                last = user.lastName,
-                email = user.email,
-                school = user.school,
-                course = user.course,
-                address = "" // Pass address here once you add it to the User data class
-            )
-        }
+    override fun loadCurrentData() {
+        val data = model.getCurrentData()
+        view.populateFields(
+            first = data["FIRST"] ?: "",
+            last = data["LAST"] ?: "",
+            email = data["EMAIL"] ?: "",
+            school = data["SCHOOL"] ?: "",
+            course = data["COURSE"] ?: "",
+            address = data["ADDRESS"] ?: ""
+        )
     }
 
     override fun saveChanges(first: String, last: String, email: String, school: String, course: String, address: String) {
-        // Basic validation
-        if (first.isBlank() || last.isBlank() || email.isBlank()) {
-            view.showMessage("First name, last name, and email cannot be empty.")
+        if (first.isEmpty() || email.isEmpty()) {
+            view.showMessage("First Name and Email are required.")
             return
         }
 
-        model.updateCurrentUser(first, last, email, school, course, address)
+        model.saveChanges(first, last, email, school, course, address)
         view.showMessage("Profile updated successfully!")
-        view.navigateBackToProfile()
+        view.finishActivity()
     }
 }

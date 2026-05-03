@@ -176,9 +176,32 @@
                         android:orientation="vertical"
                         android:padding="20dp">
 
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="NODE DESCRIPTION" android:textColor="#A0A0A0" android:textSize="10sp" android:fontFamily="sans-serif-black" />
-                        <TextView android:id="@+id/textviewNodeTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Mitosis" android:textColor="#1A1A1A" android:textSize="16sp" android:fontFamily="sans-serif-black" />
-                        <TextView android:id="@+id/textviewNodeDesc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="A type of cell division resulting in two daughter cells." android:textColor="#A0A0A0" android:textSize="12sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="NODE DESCRIPTION"
+                            android:textColor="#A0A0A0"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black" />
+
+                        <TextView
+                            android:id="@+id/textviewNodeTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Tap a node to begin"
+                            android:textColor="#1A1A1A"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-black" />
+
+                        <TextView
+                            android:id="@+id/textviewNodeDesc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="The node's detailed explanation will appear here."
+                            android:textColor="#A0A0A0"
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

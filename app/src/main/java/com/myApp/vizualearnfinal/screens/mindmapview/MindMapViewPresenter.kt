@@ -20,23 +20,15 @@ class MindMapViewPresenter(
         CoroutineScope(Dispatchers.Main).launch {
             val nodes = model.getNodes(mapId)
 
-            // 1. Update the headers
+            // 1. Update the headers (This keeps the mapTitle at the top of the screen)
             view.setMapHeaders(mapTitle, "Biology • ${nodes.size} nodes • AI generated")
 
             // 2. Build the Cytoscape JSON Array
             val elementsArray = JSONArray()
 
-            // Create Root Node
-            val rootNode = JSONObject().apply {
-                put("data", JSONObject().apply {
-                    put("id", "root")
-                    put("label", mapTitle)
-                })
-            }
-            elementsArray.put(rootNode)
-
+            // BUG 3 FIX: Removed the explicit rootNode injection.
+            // Just let the loop process the real nodes exactly as they were saved.
             nodes.forEach { node ->
-                // WE REMOVED THE INTERCEPTION! Let Gemini's title shine.
                 val nodeTitle = node.title
 
                 elementsArray.put(JSONObject().apply {
@@ -57,6 +49,7 @@ class MindMapViewPresenter(
                     })
                 }
             }
+
             val rawJsonString = elementsArray.toString()
             val base64Json = android.util.Base64.encodeToString(
                 rawJsonString.toByteArray(Charsets.UTF_8),

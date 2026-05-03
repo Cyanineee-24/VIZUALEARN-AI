@@ -38,7 +38,7 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
             }
         }
 
-        @JavascriptInterface
+        @android.webkit.JavascriptInterface
         fun saveImage(base64String: String) {
             val cleanBase64 = base64String.replace("data:image/png;base64,", "")
             val imageBytes = android.util.Base64.decode(cleanBase64, android.util.Base64.DEFAULT)
@@ -66,11 +66,15 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
                         contentValues.put(MediaStore.MediaColumns.IS_PENDING, 0)
                         resolver.update(it, contentValues, null, null)
                     }
-                    runOnUiThread { toast("Exported mind map to images!") }
+
+                    // THE CRITICAL SUCCESS FEEDBACK
+                    runOnUiThread {
+                        toast("Success! Mind Map saved to Gallery/VizuaLearn")
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                runOnUiThread { toast("Failed to save image.") }
+                runOnUiThread { toast("Export failed: ${e.localizedMessage}") }
             }
         }
     }
@@ -108,7 +112,29 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
         presenter.loadMapData(mapId, mapTitle)
 
         getLinearLayout(R.id.linearlayoutBtnExport)?.setOnClickListener {
-            webView.evaluateJavascript("javascript:exportToAndroid()", null)
+            val expandAndExportJS = """
+                javascript:(function() {
+                    try {
+                        if (typeof cy !== 'undefined') {
+                            // 1. Force reveal all nodes using your custom HTML logic
+                            cy.elements().removeClass('hidden');
+                            cy.nodes().removeClass('has-hidden-children');
+                            
+                            // 2. Snap to a clean layout
+                            cy.layout({
+                                name: 'dagre',
+                                rankDir: 'LR',
+                                animate: false,
+                                fit: true,
+                                padding: 30
+                            }).run();
+                        }
+                    } catch(e) {}
+                    // 3. Take the picture after a short delay to ensure rendering is 100%
+                    setTimeout(function() { exportToAndroid(); }, 1000);
+                })()
+            """.trimIndent()
+            webView.evaluateJavascript(expandAndExportJS, null)
         }
     }
 

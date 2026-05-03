@@ -10,7 +10,7 @@ import com.myApp.vizualearnfinal.utils.DeckProgressManager
 
 class ProgressModel(
     private val context: Context,
-    private val repository: StudySetRepository // <--- ADDED REPOSITORY HERE
+    private val repository: StudySetRepository
 ) {
     private val prefs: SharedPreferences = context.getSharedPreferences("vizualearn_progress", Context.MODE_PRIVATE)
 
@@ -18,41 +18,71 @@ class ProgressModel(
     fun getBestStreak(): Int = prefs.getInt("BEST_STREAK", 0)
     fun getTotalDays(): Int = prefs.getInt("TOTAL_DAYS", 0)
 
+    // --- NEW STAT GETTERS ---
+    fun getMonthDays(): Int = prefs.getInt("MONTH_DAYS", 0)
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMissedDays(): Int {
+        val firstLogin = prefs.getLong("FIRST_LOGIN_DATE", 0L)
+        if (firstLogin == 0L) return 0 // Brand new account, 0 missed days!
+
+        val todayEpoch = LocalDate.now().toEpochDay()
+        val expectedDays = (todayEpoch - firstLogin + 1).toInt()
+        val missed = expectedDays - getTotalDays()
+        return if (missed < 0) 0 else missed
+    }
+
     // THE REAL-TIME STREAK LOGIC
     @RequiresApi(Build.VERSION_CODES.O)
     fun recordDailyLogin() {
-        val todayEpoch = LocalDate.now().toEpochDay()
-        val lastLoginEpoch = prefs.getLong("LAST_LOGIN_DATE", 0L)
+        val today = LocalDate.now()
+        val todayEpoch = today.toEpochDay()
+        val currentMonth = today.monthValue
 
-        // 1. If this is the exact same day, do nothing. They already got their streak today.
-        if (todayEpoch == lastLoginEpoch) return
+        val lastLoginEpoch = prefs.getLong("LAST_LOGIN_DATE", 0L)
+        val savedMonth = prefs.getInt("LAST_LOGIN_MONTH", currentMonth)
+
+        if (todayEpoch == lastLoginEpoch) return // Already got streak today
 
         val editor = prefs.edit()
+
+        // Save their very first day for missed days calculation
+        if (!prefs.contains("FIRST_LOGIN_DATE")) {
+            editor.putLong("FIRST_LOGIN_DATE", todayEpoch)
+        }
+
         var currentStreak = getCurrentStreak()
         var totalDays = getTotalDays()
         val bestStreak = getBestStreak()
+        var monthDays = prefs.getInt("MONTH_DAYS", 0)
 
-        // 2. Calculate the difference in days
+        // Month Logic
+        if (currentMonth != savedMonth) {
+            monthDays = 1 // Reset for new month
+        } else {
+            monthDays += 1
+        }
+
+        // Streak & Total Days Logic
         if (lastLoginEpoch == 0L) {
-            // First time ever opening the app!
             currentStreak = 1
             totalDays = 1
+            monthDays = 1
         } else if (todayEpoch - lastLoginEpoch == 1L) {
-            // They logged in exactly yesterday! Keep the streak alive.
             currentStreak += 1
             totalDays += 1
         } else {
-            // They missed a day (or more). Streak is broken.
             currentStreak = 1
-            totalDays += 1 // We still count it as a total day studied
+            totalDays += 1
         }
 
-        // 3. Save the new values
+        // Save everything
         editor.putInt("CURRENT_STREAK", currentStreak)
         editor.putInt("TOTAL_DAYS", totalDays)
-        editor.putLong("LAST_LOGIN_DATE", todayEpoch) // Update last login to today
+        editor.putInt("MONTH_DAYS", monthDays)
+        editor.putInt("LAST_LOGIN_MONTH", currentMonth)
+        editor.putLong("LAST_LOGIN_DATE", todayEpoch)
 
-        // 4. Update the high score if they beat it
         if (currentStreak > bestStreak) {
             editor.putInt("BEST_STREAK", currentStreak)
         }
@@ -60,9 +90,6 @@ class ProgressModel(
         editor.apply()
     }
 
-    // --- EVERYTHING BELOW MUST BE INSIDE THE CLASS ---
-
-    // Create a data class to hold the calculated info
     data class SubjectMastery(
         val subjectName: String,
         val iconResName: String,
@@ -72,7 +99,6 @@ class ProgressModel(
         val percent get() = if (total > 0) (learned * 100) / total else 0
     }
 
-    // Add this to calculate the data for the UI
     suspend fun getMasteryData(): Pair<Int, List<SubjectMastery>> {
         val sets = repository.getAllSets()
         var totalLearnedAcrossApp = 0

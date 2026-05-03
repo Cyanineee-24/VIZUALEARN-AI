@@ -28,7 +28,9 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
 
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
-        presenter = EditDeckPresenter(this, EditDeckModel(repository))
+
+        // JUST ADD 'this' AS THE FIRST PARAMETER:
+        presenter = EditDeckPresenter(this, EditDeckModel(this, repository))
 
         setupUI()
         presenter.loadDeck(deckId)

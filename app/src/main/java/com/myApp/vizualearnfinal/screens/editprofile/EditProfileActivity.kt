@@ -1,10 +1,13 @@
 package com.myApp.vizualearnfinal.screens.editprofile
 
 import android.os.Bundle
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.myApp.vizualearnfinal.R
-import com.myApp.vizualearnfinal.application.CustomApplication
-import com.myApp.vizualearnfinal.utils.*
+import com.myApp.vizualearnfinal.utils.getEditTextStringValue
+import com.myApp.vizualearnfinal.utils.toast
 
 class EditProfileActivity : AppCompatActivity(), EditProfileContract.View {
 
@@ -14,43 +17,42 @@ class EditProfileActivity : AppCompatActivity(), EditProfileContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
 
-        val app = application as CustomApplication
-        presenter = EditProfilePresenter(this, EditProfileModel(app))
+        presenter = EditProfilePresenter(this, EditProfileModel(this))
 
-        // 1. Fill the boxes with the current data
-        presenter.loadCurrentUserData()
+        // Back and Cancel Buttons
+        findViewById<ImageView>(R.id.imageviewBack)?.setOnClickListener { finishActivity() }
+        findViewById<TextView>(R.id.textviewCancelLink)?.setOnClickListener { finishActivity() }
 
-        // 2. Handle Save
-        getTextView(R.id.textviewSaveChangesBtn)?.setOnClickListener {
-            presenter.saveChanges(
-                first = getEditTextStringValue(R.id.edittextFirstName),
-                last = getEditTextStringValue(R.id.edittextLastName),
-                email = getEditTextStringValue(R.id.edittextEmailAddress),
-                school = getEditTextStringValue(R.id.edittextSchoolUniversity),
-                course = getEditTextStringValue(R.id.edittextFieldOfStudy),
-                address = getEditTextStringValue(R.id.edittextAddress)
-            )
+        // Save Button
+        findViewById<TextView>(R.id.textviewSaveChangesBtn)?.setOnClickListener {
+            val first = getEditTextStringValue(R.id.edittextFirstName)
+            val last = getEditTextStringValue(R.id.edittextLastName)
+            val email = getEditTextStringValue(R.id.edittextEmailAddress)
+            val school = getEditTextStringValue(R.id.edittextSchoolUniversity)
+            val course = getEditTextStringValue(R.id.edittextFieldOfStudy)
+            val address = getEditTextStringValue(R.id.edittextAddress)
+
+            presenter.saveChanges(first, last, email, school, course, address)
         }
 
-        // 3. Handle Cancels/Backs
-        getTextView(R.id.textviewCancelLink)?.setOnClickListener { navigateBackToProfile() }
-        getImageView(R.id.imageviewBack)?.setOnClickListener { navigateBackToProfile() }
+        // Load current data instantly
+        presenter.loadCurrentData()
     }
 
-    override fun populateUserData(first: String, last: String, email: String, school: String, course: String, address: String) {
-        getEditText(R.id.edittextFirstName)?.setText(first)
-        getEditText(R.id.edittextLastName)?.setText(last)
-        getEditText(R.id.edittextEmailAddress)?.setText(email)
-        getEditText(R.id.edittextSchoolUniversity)?.setText(school)
-        getEditText(R.id.edittextFieldOfStudy)?.setText(course)
-        getEditText(R.id.edittextAddress)?.setText(address)
+    override fun populateFields(first: String, last: String, email: String, school: String, course: String, address: String) {
+        findViewById<EditText>(R.id.edittextFirstName)?.setText(first)
+        findViewById<EditText>(R.id.edittextLastName)?.setText(last)
+        findViewById<EditText>(R.id.edittextEmailAddress)?.setText(email)
+        findViewById<EditText>(R.id.edittextSchoolUniversity)?.setText(school)
+        findViewById<EditText>(R.id.edittextFieldOfStudy)?.setText(course)
+        findViewById<EditText>(R.id.edittextAddress)?.setText(address)
     }
 
     override fun showMessage(message: String) {
         toast(message)
     }
 
-    override fun navigateBackToProfile() {
-        finish() // Pops this screen off, revealing the Profile screen underneath!
+    override fun finishActivity() {
+        finish()
     }
 }

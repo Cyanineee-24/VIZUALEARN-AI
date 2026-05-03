@@ -18,15 +18,17 @@ class ProgressPresenter(
         val best = model.getBestStreak()
         val total = model.getTotalDays()
 
-        // The Math!
+        // Grab the newly calculated stats!
+        val monthDays = model.getMonthDays()
+        val missedDays = model.getMissedDays()
+
         val nextMilestone = ((current / 10) + 1) * 10
         val daysToGo = nextMilestone - current
         val milestoneProgress = if (current % 10 == 0 && current > 0) 100 else ((current % 10) * 100) / 10
 
-        // Pass EVERYTHING to the View
-        view.updateStreakUI(current, best, total, nextMilestone, daysToGo, milestoneProgress)
+        // Send everything to the View
+        view.updateStreakUI(current, best, total, monthDays, missedDays, nextMilestone, daysToGo, milestoneProgress)
 
-        // Fetch Mastery Data and send to View
         CoroutineScope(Dispatchers.Main).launch {
             val (overallPercent, subjectList) = model.getMasteryData()
             view.updateMasteryUI(overallPercent, subjectList)
