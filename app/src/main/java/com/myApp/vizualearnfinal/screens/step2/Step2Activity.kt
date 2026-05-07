@@ -16,7 +16,7 @@ import android.widget.LinearLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import android.widget.HorizontalScrollView
 
-class Step2Activity : AppCompatActivity(), Step2Contract.View {
+class  Step2Activity : AppCompatActivity(), Step2Contract.View {
 
     private lateinit var presenter: Step2Contract.Presenter
     private var setId: Int = 0

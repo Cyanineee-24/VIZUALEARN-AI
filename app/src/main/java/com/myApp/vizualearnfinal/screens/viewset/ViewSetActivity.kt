@@ -80,7 +80,7 @@ class ViewSetActivity : AppCompatActivity(), ViewSetContract.View {
             val mapTitle = mindMapItems.find { it.id == id }?.title ?: "Mind Map"
             val intent = Intent(this, MindMapViewActivity::class.java)
             intent.putExtra("EXTRA_MAP_ID", id)
-            intent.putExtra("EXTRA_MAP_TITLE", mapTitle) // <-- THE FIX
+            intent.putExtra("EXTRA_MAP_TITLE", mapTitle) // FIX: Pass the real title
             startActivity(intent)
         }
         findViewById<RecyclerView>(R.id.rvMindMaps).adapter = mindMapAdapter
