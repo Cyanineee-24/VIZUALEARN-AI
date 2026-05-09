@@ -29,7 +29,7 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
     private var isPageLoaded = false
     private var pendingJsonData: String? = null
 
-    // --- THE JAVASCRIPT BRIDGE ---
+    // JavaScipt Bridge
     inner class WebAppInterface {
         @JavascriptInterface
         fun onNodeTapped(title: String, description: String) {
@@ -67,7 +67,7 @@ class MindMapViewActivity : AppCompatActivity(), MindMapViewContract.View {
                         resolver.update(it, contentValues, null, null)
                     }
 
-                    // THE CRITICAL SUCCESS FEEDBACK
+                    // Success message feedback
                     runOnUiThread {
                         toast("Success! Mind Map saved to Gallery/VizuaLearn")
                     }

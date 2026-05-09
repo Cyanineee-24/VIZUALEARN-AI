@@ -9,20 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.myApp.vizualearnfinal.R
 
-// 1. The Type Flag
 enum class ContainerType { FLASHCARD, MIND_MAP }
-
-// 2. UPDATED: Added iconResId
 data class DeckItem(
     val id: Int,
     val title: String,
     val subtitle: String,
     val progress: Int,
     val type: ContainerType,
-    val iconResId: Int // <--- NEW!
+    val iconResId: Int // icon from the study set
 )
 
-// 3. The Adapter
 class ContainerAdapter(
     private var items: List<DeckItem>,
     private val onItemClick: (Int, ContainerType) -> Unit
@@ -49,7 +45,7 @@ class ContainerAdapter(
         holder.textTitle.text = item.title
         holder.textSubtitle.text = item.subtitle
 
-        // SET THE DYNAMIC ICON FROM THE PARENT SET!
+        // Set icon if we have one
         if (item.iconResId != 0) {
             holder.imageIcon.setImageResource(item.iconResId)
         }

@@ -54,7 +54,7 @@ class MyStudySetsActivity : AppCompatActivity(), MyStudySetsContract.View {
             startActivity(Intent(this, AddSetActivity::class.java))
         }
 
-        // Wire up the Universal Footer!
+        // Setup universal footer
         setupUniversalFooter()
     }
 
@@ -78,8 +78,7 @@ class MyStudySetsActivity : AppCompatActivity(), MyStudySetsContract.View {
             itemView.getTextView(R.id.textviewItemTitle)?.text = set.setName
             itemView.getTextView(R.id.textviewItemSubTitle)?.text = "${set.cardCount} cards set - ${set.mindMapCount} mind map"
             itemView.getTextView(R.id.textviewItemSubjectTag)?.text = set.subject
-
-            // Make them clickable!
+            
             itemView.setOnClickListener {
                 val intent = Intent(this, ViewSetActivity::class.java).apply {
                     putExtra("EXTRA_SET_ID", set.id)

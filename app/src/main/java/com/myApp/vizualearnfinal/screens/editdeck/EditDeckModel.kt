@@ -5,7 +5,6 @@ import com.myApp.vizualearnfinal.data.model.Flashcard
 import com.myApp.vizualearnfinal.data.repository.StudySetRepository
 import com.myApp.vizualearnfinal.utils.DeckProgressManager
 
-// 1. ADD 'Context' TO THE CONSTRUCTOR
 class EditDeckModel(private val context: Context, private val repository: StudySetRepository) {
 
     suspend fun getCardsForDeck(deckId: Int): List<Flashcard> {
@@ -23,8 +22,6 @@ class EditDeckModel(private val context: Context, private val repository: StudyS
     suspend fun insertFlashcard(card: Flashcard) {
         repository.insertFlashcard(card)
     }
-
-    // --- 2. NEW PROGRESS SYNC LOGIC ---
 
     suspend fun removeCardFromLearned(deckId: Int, cardId: Int) {
         val learnedSet = DeckProgressManager.getLearnedIds(context, deckId)

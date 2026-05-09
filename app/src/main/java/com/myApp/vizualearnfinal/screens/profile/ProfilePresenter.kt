@@ -12,7 +12,6 @@ class ProfilePresenter(
     override fun loadProfileData() {
         val formattedUsername = "@${model.getUsername()}"
 
-        // Pass the address to the view!
         view.displayUserProfile(
             formattedUsername,
             model.getEmail(),

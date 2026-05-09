@@ -16,7 +16,7 @@ class FlashCardViewPresenter(
 
     private var studyQueue: ArrayDeque<Flashcard> = ArrayDeque()
 
-    // FIX: This set is the source of truth for what's been learned this session
+    // This set is the source of truth for what's been learned during current session
     private val learnedCardIds = mutableSetOf<Int>()
 
     private var peekIndex: Int = 0

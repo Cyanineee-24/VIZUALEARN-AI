@@ -22,7 +22,7 @@ class DashboardModel(
     }
 
     fun getUserStreak(): Int {
-        // Hardcoded for now since streak isn't a variable in our User data class yet!
-        return 14
+        val prefs = app.getSharedPreferences("vizualearn_progress", android.content.Context.MODE_PRIVATE)
+        return prefs.getInt("CURRENT_STREAK", 0)
     }
 }

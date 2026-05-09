@@ -28,7 +28,6 @@ class ProfileActivity : AppCompatActivity(), ProfileContract.View {
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
 
-        // FIX: Added 'this' as the first parameter for the Context!
         presenter = ProfilePresenter(this, ProfileModel(this, app, repository))
 
 
@@ -45,7 +44,6 @@ class ProfileActivity : AppCompatActivity(), ProfileContract.View {
         presenter.loadProfileData()
     }
 
-    // UPDATED: Added memberSince parameter
     override fun displayUserProfile(username: String, email: String, school: String, course: String, address: String, memberSince: String) {
         setTextViewStringValue(R.id.textviewName, username)
         setTextViewStringValue(R.id.textviewEmail, email)
@@ -53,8 +51,6 @@ class ProfileActivity : AppCompatActivity(), ProfileContract.View {
         setTextViewStringValue(R.id.textviewSchool2, school)
         setTextViewStringValue(R.id.textviewCourse, course)
         setTextViewStringValue(R.id.textViewLocation, address)
-
-        // NEW: Wire up the Member Since date!
         setTextViewStringValue(R.id.textviewMemberSince, memberSince)
     }
 

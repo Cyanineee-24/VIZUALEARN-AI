@@ -18,7 +18,6 @@ class ProgressPresenter(
         val best = model.getBestStreak()
         val total = model.getTotalDays()
 
-        // Grab the newly calculated stats!
         val monthDays = model.getMonthDays()
         val missedDays = model.getMissedDays()
 

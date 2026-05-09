@@ -29,7 +29,6 @@ class EditDeckActivity : AppCompatActivity(), EditDeckContract.View {
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
 
-        // JUST ADD 'this' AS THE FIRST PARAMETER:
         presenter = EditDeckPresenter(this, EditDeckModel(this, repository))
 
         setupUI()

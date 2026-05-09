@@ -2,7 +2,7 @@ package com.myApp.vizualearnfinal.screens.progress
 
 interface ProgressContract {
     interface View {
-        // UPDATED: Added monthDays and missedDays to the signature
+
         fun updateStreakUI(
             currentStreak: Int,
             bestStreak: Int,

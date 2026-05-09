@@ -70,7 +70,7 @@ class EditDeckPresenter(
         }
     }
 
-    // --- AI CONTEXT HELPERS ---
+    // Helper functions for Gemini to auto-generate a context for flash card
     private suspend fun fetchContextFromGemini(front: String, back: String): String {
         val prompt = """
             You are an expert educator helping a student deeply understand a concept.

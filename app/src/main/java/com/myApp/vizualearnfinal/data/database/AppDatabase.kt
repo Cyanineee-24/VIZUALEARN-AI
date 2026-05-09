@@ -10,10 +10,10 @@ import com.myApp.vizualearnfinal.data.model.MindMap
 import com.myApp.vizualearnfinal.data.model.MindMapNode
 import com.myApp.vizualearnfinal.data.model.StudySet
 
-// 1. Added Flashcard and MindMapNode to entities, bumped version to 3
+
 @Database(
     entities = [StudySet::class, FlashcardDeck::class, Flashcard::class, MindMap::class, MindMapNode::class],
-    version = 4,
+    version = 5, // Bump this up especially if changes in db occurs otherwise app may crash
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,7 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "vizualearn_database"
                 )
-                    .fallbackToDestructiveMigration() // 2. Prevents crashes when schema changes
+                    .fallbackToDestructiveMigration() //Prevents crashes when schema changes
                     .build()
                 INSTANCE = instance
                 instance

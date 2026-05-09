@@ -7,6 +7,6 @@ data class User(
     val email: String,
     val school: String,
     val course: String,
-    val password: String,
+    var password: String,
     var address: String = ""
 )

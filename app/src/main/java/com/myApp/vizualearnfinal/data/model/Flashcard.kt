@@ -9,5 +9,5 @@ data class Flashcard(
     val deckId: Int,
     val frontText: String,
     val backText: String,
-    val contextText: String? = null // NEW: Stores the AI-generated or manual context
+    val contextText: String? = null
 )

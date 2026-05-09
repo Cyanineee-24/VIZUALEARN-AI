@@ -20,14 +20,12 @@ class MindMapViewPresenter(
         CoroutineScope(Dispatchers.Main).launch {
             val nodes = model.getNodes(mapId)
 
-            // 1. Update the headers (This keeps the mapTitle at the top of the screen)
+            // Update the headers (This keeps the mapTitle at the top of the screen)
             view.setMapHeaders(mapTitle, "Biology • ${nodes.size} nodes • AI generated")
 
-            // 2. Build the Cytoscape JSON Array
+            // Build the Cytoscape JSON Array
             val elementsArray = JSONArray()
 
-            // BUG 3 FIX: Removed the explicit rootNode injection.
-            // Just let the loop process the real nodes exactly as they were saved.
             nodes.forEach { node ->
                 val nodeTitle = node.title
 

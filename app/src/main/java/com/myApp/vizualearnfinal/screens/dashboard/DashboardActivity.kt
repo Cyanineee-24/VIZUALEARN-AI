@@ -27,7 +27,7 @@ class DashboardActivity : AppCompatActivity(), DashboardContract.View {
 
         setupUniversalFooter()
 
-        // MVP Initialization (Passing CustomApplication for User Data)
+        // MVP Initialization
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
         val app = application as CustomApplication
@@ -37,10 +37,10 @@ class DashboardActivity : AppCompatActivity(), DashboardContract.View {
         studySetsContainer = getLinearLayout(R.id.linearlayoutStudySetsContainer)
         addSetPromptLayout = getLinearLayout(R.id.linearlayoutAddSetPrompt)
 
-        // 1. Load User Data (Name and Streak)
+        // Load User Data (Name and Streak)
         presenter.loadUserData()
 
-        // 2. Delegate Clicks to Presenter
+        // Delegate Clicks to Presenter
         getTextView(R.id.textviewCreateMindMap)?.setOnClickListener {
             presenter.onCreateMindMapClicked()
         }
@@ -53,7 +53,7 @@ class DashboardActivity : AppCompatActivity(), DashboardContract.View {
             presenter.onAddSetClicked()
         }
 
-        // 3. Setup Bottom Navigation!
+        // Setup Bottom Navigation
         setupUniversalFooter()
     }
 
@@ -61,8 +61,6 @@ class DashboardActivity : AppCompatActivity(), DashboardContract.View {
         super.onResume()
         presenter.loadSets() // Reload sets whenever the user comes back to the dashboard
     }
-
-    // --- Contract View Methods ---
 
     override fun displayUserData(userName: String, streakDays: Int) {
         // Updates the top header with real login data

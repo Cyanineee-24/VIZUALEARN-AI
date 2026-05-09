@@ -17,8 +17,6 @@ class ProgressModel(
     fun getCurrentStreak(): Int = prefs.getInt("CURRENT_STREAK", 0)
     fun getBestStreak(): Int = prefs.getInt("BEST_STREAK", 0)
     fun getTotalDays(): Int = prefs.getInt("TOTAL_DAYS", 0)
-
-    // --- NEW STAT GETTERS ---
     fun getMonthDays(): Int = prefs.getInt("MONTH_DAYS", 0)
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -32,7 +30,7 @@ class ProgressModel(
         return if (missed < 0) 0 else missed
     }
 
-    // THE REAL-TIME STREAK LOGIC
+    // Streak logic
     @RequiresApi(Build.VERSION_CODES.O)
     fun recordDailyLogin() {
         val today = LocalDate.now()

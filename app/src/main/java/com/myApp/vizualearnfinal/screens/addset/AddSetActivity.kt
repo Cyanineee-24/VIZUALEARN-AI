@@ -29,7 +29,7 @@ class AddSetActivity : AppCompatActivity(), AddSetContract.View {
         setupSubjectChips()
         setupIconPicker()
 
-        // Using extensions for click listeners and fetching text
+
         getTextView(R.id.textviewSave)?.setOnClickListener {
             presenter.saveStudySet(
                 name = getEditTextStringValue(R.id.edittextSetName),

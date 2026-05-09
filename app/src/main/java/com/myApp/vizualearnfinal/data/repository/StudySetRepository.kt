@@ -9,7 +9,7 @@ class StudySetRepository(private val dao: StudySetDao) {
     suspend fun getAllSets(): List<StudySet> = dao.getAllSets()
     suspend fun getSetById(setId: Int): StudySet? = dao.getSetById(setId)
 
-    // --- FLASHCARDS ---
+    // FLASHCARD
     suspend fun createDeckAndSaveCards(setId: Int, deckName: String, cards: List<Flashcard>) {
         // 1. Create the container deck
         val newDeck = FlashcardDeck(studySetId = setId, deckName = deckName)
@@ -26,7 +26,7 @@ class StudySetRepository(private val dao: StudySetDao) {
     suspend fun getDecksForSet(setId: Int): List<FlashcardDeck> = dao.getDecksForSet(setId)
     suspend fun getFlashcardsForDeck(deckId: Int): List<Flashcard> = dao.getFlashcardsForDeck(deckId)
 
-    // --- MIND MAPS ---
+    // MIND MAP
     suspend fun createMapAndSaveNodes(setId: Int, mapName: String, nodes: List<MindMapNode>) {
         val newMap = MindMap(studySetId = setId, mapName = mapName)
         val newMapId = dao.insertMindMap(newMap).toInt()

@@ -24,14 +24,14 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_progress)
 
-        // Initialize Repository and Model (Model now requires a repository)
+        // MVP initialization
         val dao = AppDatabase.getDatabase(this).studySetDao()
         val repository = StudySetRepository(dao)
         val model = ProgressModel(this, repository)
         
         presenter = ProgressPresenter(this, model)
 
-        // Wire up the bottom navigation!
+        // Setup universal footer
         setupUniversalFooter()
     }
 
@@ -41,7 +41,6 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
         presenter.loadProgressData()
     }
 
-    // UPDATED: Now accepts monthDays and missedDays
     override fun updateStreakUI(
         currentStreak: Int,
         bestStreak: Int,
@@ -56,7 +55,6 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
         getTextView(R.id.textviewBestNumber)?.text = bestStreak.toString()
         getTextView(R.id.textviewStatTotalNumber)?.text = totalDays.toString()
 
-        // THE FIX: Wire up the dynamic numbers! No more fake '3' missed days!
         getTextView(R.id.textviewStatMonthNumber)?.text = monthDays.toString()
         getTextView(R.id.textviewStatMissedNumber)?.text = missedDays.toString()
 
@@ -69,7 +67,6 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
             progressFill.layoutParams = it
         }
 
-        // --- THE REAL-TIME CALENDAR & DATE UPDATE ---
         val today = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             LocalDate.now()
         } else null
@@ -112,14 +109,14 @@ class ProgressActivity : AppCompatActivity(), ProgressContract.View {
 
 
     override fun updateMasteryUI(overallPercent: Int, subjects: List<ProgressModel.SubjectMastery>) {
-        // 1. Update the Donut Chart!
+        // Update the Donut Chart
         val progressBarMastery = findViewById<ProgressBar>(R.id.progressbarMastery)
         val textviewMasteryPercent = getTextView(R.id.textviewMasteryPercent)
 
         progressBarMastery?.progress = overallPercent
         textviewMasteryPercent?.text = "$overallPercent%"
 
-        // 2. Clear out the old content and populate the dynamic list
+        // populate dynamic list
         val container = findViewById<LinearLayout>(R.id.linearlayoutBySubjectCard)
 
         // We want to keep the "By Subject" title, so we remove all views EXCEPT the first one (index 0)

@@ -27,7 +27,7 @@ class FlashCardViewModel(
         repository.updateFlashcard(card)
     }
 
-    // --- PROGRESS LOGIC ---
+    // Progress Bar Logic
     fun getLearnedCardIds(deckId: Int): MutableSet<Int> {
         return DeckProgressManager.getLearnedIds(context, deckId)
     }

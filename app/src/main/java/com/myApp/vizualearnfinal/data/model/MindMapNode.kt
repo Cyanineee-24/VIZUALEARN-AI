@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class MindMapNode(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val mindMapId: Int,
-    val nodeId: String,    // NEW: Gemini's unique ID for the node
-    val parentId: String,  // NEW: Defines the hierarchy (who it attaches to)
+    val nodeId: String,
+    val parentId: String,
     val title: String,
     val description: String
 )
