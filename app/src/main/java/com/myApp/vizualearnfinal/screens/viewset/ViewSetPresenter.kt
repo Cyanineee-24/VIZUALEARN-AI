@@ -14,7 +14,7 @@ class ViewSetPresenter(
     private var currentSetId: Int = -1
 
     override fun loadSetData(setId: Int) {
-        this.currentSetId = setId // CRITICAL FIX: Save the ID so the buttons work!
+        this.currentSetId = setId
 
         CoroutineScope(Dispatchers.Main).launch {
             val studySet = model.getStudySet(setId)
