@@ -1,4 +1,4 @@
-/build
+build/
 # Local secret files
 secrets.properties
 local.properties
