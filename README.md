@@ -35,12 +35,6 @@ To run this project, you will need to add your own API Key for the Gemini AI.
 4. **Build the project:**
    Open the project in Android Studio and let Gradle sync.
 
-## 📱 Screenshots
-
-| Home / Study Sets | Flashcard View | Mind Map |
-| :---: | :---: | :---: |
-| *[Add Screenshot]* | *[Add Screenshot]* | *[Add Screenshot]* |
-
 ## 📄 License
 
 This project is for educational purposes as part of a University curriculum.
